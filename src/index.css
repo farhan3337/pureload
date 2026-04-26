@@ -441,17 +441,31 @@
   will-change: transform; align-items: center;
 }
 .flv-card {
-  flex-shrink: 0; width: clamp(320px, 42vw, 580px);
-  height: calc(100vh - 220px); border-radius: 20px; overflow: hidden;
-  border: 1px solid rgba(255,255,255,.07); background: #0d0d0d;
-  display: flex; flex-direction: column; cursor: pointer;
-  position: relative; transition: border-color .4s;
+  flex-shrink: 0;
+  width: clamp(320px, 42vw, 580px);
+  height: calc(100vh - 220px);
+  max-height: 720px;             /* prevent oversize on large screens */
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.07);
+  background: #0d0d0d;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
+  transition: border-color .4s, transform .4s, box-shadow .4s;
   will-change: transform, opacity;
 }
 .flv-card:hover { border-color: rgba(255,90,0,.4); }
+
 .flv-img {
-  height: 65%; display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden; flex-shrink: 0;
+  flex: 1 1 auto;                /* image takes remaining space */
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 .flv-img::after {
   content: ''; position: absolute; inset: 0;
@@ -466,25 +480,39 @@
 }
 .flv-cs { background: rgba(255,255,255,.12); color: rgba(255,255,255,.45); }
 .flv-body {
-  padding: 24px 28px; flex: 1; display: flex; flex-direction: column;
-  justify-content: space-between; background: #0d0d0d;
+  padding: 22px 26px 24px;
+  flex: 0 0 auto;                /* body sized to content */
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #0d0d0d;
 }
+/* Cap font sizes so they don't blow up on huge screens */
 .flv-name {
-  font-family: var(--font-heading); font-size: clamp(30px, 3.5vw, 48px);
-  letter-spacing: 1px; line-height: 1; color: hsl(var(--pl-white));
+  font-family: var(--font-heading);
+  font-size: clamp(28px, 2.8vw, 40px);
+  letter-spacing: 1px;
+  line-height: 1;
+  color: hsl(var(--pl-white));
+}
+
+.flv-price {
+  font-family: var(--font-heading);
+  font-size: clamp(32px, 3vw, 44px);
+  color: hsl(var(--primary));
 }
 .flv-sub {
   font-family: var(--font-ui); font-size: 10px; letter-spacing: 2px;
   color: hsl(var(--muted)); margin-top: 6px; text-transform: uppercase;
 }
 .flv-row {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-top: auto; padding-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
 }
-.flv-price {
-  font-family: var(--font-heading); font-size: clamp(36px, 4vw, 54px);
-  color: hsl(var(--primary));
-}
+
 .flv-btn {
   padding: 12px 28px; font-family: var(--font-ui); font-size: 11px;
   font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
@@ -1038,3 +1066,32 @@
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* ── Global Scroll Reveal Animations ── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+[data-reveal="left"] { transform: translateX(-50px); }
+[data-reveal="right"] { transform: translateX(50px); }
+[data-reveal="up"] { transform: translateY(-40px); }
+[data-reveal].revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Stagger children */
+[data-reveal-stagger] > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+[data-reveal-stagger].revealed > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
+[data-reveal-stagger].revealed > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.08s; }
+[data-reveal-stagger].revealed > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.16s; }
+[data-reveal-stagger].revealed > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.24s; }
+[data-reveal-stagger].revealed > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.32s; }
+[data-reveal-stagger].revealed > *:nth-child(6) { opacity: 1; transform: none; transition-delay: 0.40s; }
+[data-reveal-stagger].revealed > *:nth-child(7) { opacity: 1; transform: none; transition-delay: 0.48s; }
+[data-reveal-stagger].revealed > *:nth-child(8) { opacity: 1; transform: none; transition-delay: 0.56s; }

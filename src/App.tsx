@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useScrollReveal } from '@/hooks/useScrollReveal.ts';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -16,6 +17,7 @@ import StacksPage from "./pages/StacksPage.tsx";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgress from "@/components/ScrollProgress";
 import Navbar from "@/components/Navbar.tsx";
+import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import FullscreenMenu from "@/components/FullscreenMenu";
 import type { CartItem } from "@/data/pureload";
@@ -31,6 +33,7 @@ const AppContent = () => {
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const navigate = useNavigate();
   const location = useLocation();
+  useScrollReveal(); // Global scroll-triggered reveal animations
 
   const addToCart = useCallback((qty: number, price: number, label: string, variantId?: string, isSubscription?: boolean, subscriptionInterval?: number, img?: string) => {
     const productImg = img || PRODUCTS.find(p => p.shopifyVariantId === variantId)?.img;
@@ -62,7 +65,7 @@ const AppContent = () => {
     });
   }, []);
 
-  const NavbarWrapper = (
+  const SharedNav = (
     <Navbar
       onOpenMenu={() => setMenuOpen(true)}
       onOpenCart={() => setCartOpen(true)}
@@ -79,13 +82,13 @@ const AppContent = () => {
         <Route path="/" element={
           <Index onAddCart={addToCart} onOpenCart={() => setCartOpen(true)} cartCount={cartCount} />
         } />
-        <Route path="/collections" element={<>{NavbarWrapper}<Collections /></>} />
-        <Route path="/products/:slug" element={<>{NavbarWrapper}<ProductDetail onAddCart={addToCart} /></>} />
-        <Route path="/bundles" element={<>{NavbarWrapper}<Bundles onAddCart={addToCart} /></>} />
-        <Route path="/stacks" element={<>{NavbarWrapper}<StacksPage onAddCart={addToCart} /></>} />
-        <Route path="/account" element={<>{NavbarWrapper}<Account /></>} />
-        <Route path="/mission" element={<>{NavbarWrapper}<Mission /></>} />
-        <Route path="/system" element={<>{NavbarWrapper}<System /></>} />
+        <Route path="/collections" element={<>{SharedNav}<Collections /></>} />
+        <Route path="/products/:slug" element={<>{SharedNav}<ProductDetail onAddCart={addToCart} /><Footer /></>} />
+        <Route path="/bundles" element={<>{SharedNav}<Bundles onAddCart={addToCart} /></>} />
+        <Route path="/stacks" element={<>{SharedNav}<StacksPage onAddCart={addToCart} /></>} />
+        <Route path="/account" element={<>{SharedNav}<Account /><Footer /></>} />
+        <Route path="/mission" element={<>{SharedNav}<Mission /><Footer /></>} />
+        <Route path="/system" element={<>{SharedNav}<System /><Footer /></>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

@@ -28,7 +28,7 @@ const IngredientShowcase = ({ title, subtitle, ingredients }: IngredientShowcase
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            style={{ textAlign: 'center', marginBottom: 32 }}
+            style={{ textAlign: 'center', marginBottom: 40 }}
           >
             <div className="sec-ey" style={{ opacity: 1, transform: 'none', marginBottom: 12 }}>
               KEY INGREDIENTS
@@ -61,15 +61,12 @@ const IngredientShowcase = ({ title, subtitle, ingredients }: IngredientShowcase
             </p>
           </motion.div>
 
-          {/* Desktop grid / Mobile horizontal scroll */}
-          <div
-            className="ingredient-scroll-row"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: `repeat(${ingredients.length}, 1fr)`,
-              gap: 16,
-            }}
-          >
+          {/* Ingredient grid — fixed height so images show fully */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${Math.min(ingredients.length, 4)}, 1fr)`,
+            gap: 20,
+          }}>
             {ingredients.map((ing, i) => (
               <motion.div
                 key={ing.name}
@@ -84,11 +81,21 @@ const IngredientShowcase = ({ title, subtitle, ingredients }: IngredientShowcase
                   overflow: 'hidden',
                   border: '1px solid rgba(255,255,255,.08)',
                   background: '#0d0d0d',
-                  transition: 'border-color .3s, transform .3s',
+                  transition: 'border-color .3s, box-shadow .3s',
                 }}
-                whileHover={{ scale: 1.03, borderColor: 'rgba(255,90,0,.4)' }}
+                whileHover={{ scale: 1.03, borderColor: 'rgba(255,90,0,.4)', boxShadow: '0 8px 32px rgba(255,90,0,.15)' } as any}
               >
-                <div style={{ aspectRatio: '3/4', overflow: 'hidden' }}>
+                {/* Fixed height image container — object-fit: contain so nothing gets cropped */}
+                <div style={{
+                  width: '100%',
+                  height: 220,
+                  background: '#111',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  padding: 12,
+                }}>
                   <img
                     src={ing.image}
                     alt={ing.name}
@@ -96,14 +103,14 @@ const IngredientShowcase = ({ title, subtitle, ingredients }: IngredientShowcase
                     style={{
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover',
+                      objectFit: 'contain',
                       transition: 'transform .4s',
                     }}
                     className="group-hover:scale-105"
                   />
                 </div>
                 <div style={{
-                  padding: '12px 14px',
+                  padding: '14px 14px',
                   fontFamily: 'var(--font-ui)',
                   fontSize: 11,
                   fontWeight: 700,
@@ -111,6 +118,7 @@ const IngredientShowcase = ({ title, subtitle, ingredients }: IngredientShowcase
                   color: 'hsl(var(--primary))',
                   textTransform: 'uppercase',
                   textAlign: 'center',
+                  borderTop: '1px solid rgba(255,255,255,.05)',
                 }}>
                   {ing.name}
                 </div>
@@ -131,7 +139,7 @@ const IngredientShowcase = ({ title, subtitle, ingredients }: IngredientShowcase
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            background: 'rgba(0,0,0,.9)',
+            background: 'rgba(0,0,0,.92)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -149,21 +157,12 @@ const IngredientShowcase = ({ title, subtitle, ingredients }: IngredientShowcase
           <button
             onClick={() => setSelectedImg(null)}
             style={{
-              position: 'absolute',
-              top: 24,
-              right: 24,
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,.1)',
-              border: 'none',
-              color: '#fff',
-              fontSize: 20,
-              cursor: 'pointer',
+              position: 'absolute', top: 24, right: 24,
+              width: 40, height: 40, borderRadius: '50%',
+              background: 'rgba(255,255,255,.1)', border: 'none',
+              color: '#fff', fontSize: 20, cursor: 'pointer',
             }}
-          >
-            ✕
-          </button>
+          >✕</button>
         </motion.div>
       )}
     </>

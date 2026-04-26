@@ -64,14 +64,19 @@ const HeroSection = ({ onGotoSection }: HeroSectionProps) => {
             <span>✅ GMP Certified</span>
             <span>📦 Free Shipping</span>
           </div>
-          <div style={{
-            marginTop: 12, display: 'inline-block',
-            fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 800, letterSpacing: 2,
-            color: '#000', background: 'hsl(var(--primary))',
-            padding: '6px 12px', borderRadius: 100, textTransform: 'uppercase',
-          }}>
+          <button
+            type="button"
+            onClick={() => onGotoSection('ch-ord')}
+            style={{
+              marginTop: 12, display: 'inline-block',
+              fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 800, letterSpacing: 2,
+              color: '#000', background: 'hsl(var(--primary))',
+              padding: '6px 12px', borderRadius: 100, textTransform: 'uppercase',
+              border: 0, cursor: 'pointer',
+            }}
+          >
             🔥 Best Sellers Selling Fast — Limited Stock
-          </div>
+          </button>
         </motion.div>
         <div className="h-desc-right" id="hDescRight">
           <p>Scientifically formulated, lab tested, GMP certified supplements. Made in the USA. <strong style={{ color: 'hsl(var(--primary))' }}>Free shipping on all orders.</strong></p>
