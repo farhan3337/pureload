@@ -1,10 +1,51 @@
 const HowItWorks = () => {
   return (
     <div id="ch-how" className="ch-how-wrap">
-      <section id="s-how">
-        <div className="how-noise" />
+      <section
+        id="s-how"
+        style={{
+          // ── Product image background ──
+          backgroundImage: 'url(src/assets/how-it-works.jpeg)', 
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 30%',
+          backgroundRepeat: 'no-repeat',
+          position: 'relative',
+        }}
+      >
+        {/* Dark gradient overlay — keeps text readable over the busy photo */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: `
+              linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.82) 0%,
+                rgba(0,0,0,0.55) 40%,
+                rgba(0,0,0,0.55) 60%,
+                rgba(0,0,0,0.88) 100%
+              )
+            `,
+            zIndex: 0,
+          }}
+        />
 
-        {/* Vertical accent line down the center */}
+        {/* Subtle orange vignette that echoes the product's fire tones */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'radial-gradient(ellipse 80% 60% at 50% 55%, rgba(255,90,0,0.10) 0%, transparent 70%)',
+            zIndex: 0,
+          }}
+        />
+
+        <div className="how-noise" style={{ zIndex: 1 }} />
+
+        {/* Vertical accent line */}
         <div
           aria-hidden
           style={{
@@ -13,37 +54,20 @@ const HowItWorks = () => {
             top: '20%',
             bottom: '20%',
             width: 1,
-            background: 'linear-gradient(180deg, transparent 0%, hsl(var(--primary) / 0.35) 50%, transparent 100%)',
-            zIndex: 0,
+            background:
+              'linear-gradient(180deg, transparent 0%, hsl(var(--primary) / 0.45) 50%, transparent 100%)',
+            zIndex: 1,
           }}
         />
 
-        {/* Ambient orange glow */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: '30%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '60vw',
-            height: '60vw',
-            maxWidth: 800,
-            maxHeight: 800,
-            background: 'radial-gradient(circle, hsl(var(--primary) / 0.08) 0%, transparent 60%)',
-            pointerEvents: 'none',
-            filter: 'blur(40px)',
-            zIndex: 0,
-          }}
-        />
-
+        {/* rest of your content unchanged — just make sure zIndex: 1 is on the content wrapper */}
         <div
           style={{
             width: '100%',
             maxWidth: 1160,
             padding: '0 clamp(20px, 5vw, 80px)',
             position: 'relative',
-            zIndex: 1,
+            zIndex: 2,
           }}
         >
           {/* ── Header ── */}
