@@ -26,6 +26,21 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
+/**
+ * Find a product image for any variant ID — including 2-Pack and 3-Pack variants
+ * which won't match shopifyVariantId (always the 1-Bottle).
+ * We check all bundlePricing variant IDs so every pack size gets the right image.
+ */
+function findProductImg(variantId?: string): string | undefined {
+  if (!variantId) return undefined;
+  return PRODUCTS.find(p =>
+    p.shopifyVariantId === variantId ||
+    p.bundlePricing?.singleVariantId === variantId ||
+    p.bundlePricing?.twoPackVariantId === variantId ||
+    p.bundlePricing?.threePackVariantId === variantId
+  )?.img;
+}
+
 const AppContent = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,10 +48,20 @@ const AppContent = () => {
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const navigate = useNavigate();
   const location = useLocation();
-  useScrollReveal(); // Global scroll-triggered reveal animations
+  useScrollReveal();
 
-  const addToCart = useCallback((qty: number, price: number, label: string, variantId?: string, isSubscription?: boolean, subscriptionInterval?: number, img?: string) => {
-    const productImg = img || PRODUCTS.find(p => p.shopifyVariantId === variantId)?.img;
+  const addToCart = useCallback((
+    qty: number,
+    price: number,
+    label: string,
+    variantId?: string,
+    isSubscription?: boolean,
+    subscriptionInterval?: number,
+    img?: string
+  ) => {
+    // Use explicitly passed img first, then look up by variant ID across all pack sizes
+    const productImg = img || findProductImg(variantId);
+
     setCart(prev => {
       const ex = prev.find(i => i.label === label);
       if (ex) return prev.map(i => i.label === label ? { ...i, qty: i.qty + qty } : i);

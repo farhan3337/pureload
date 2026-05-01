@@ -1,3 +1,4 @@
+import howBg from "../assets/how-it-works.jpeg";
 const HowItWorks = () => {
   return (
     <div id="ch-how" className="ch-how-wrap">
@@ -5,7 +6,7 @@ const HowItWorks = () => {
         id="s-how"
         style={{
           // ── Product image background ──
-          backgroundImage: 'url(src/assets/how-it-works.jpeg)', 
+          backgroundImage: `url(${howBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center 30%',
           backgroundRepeat: 'no-repeat',

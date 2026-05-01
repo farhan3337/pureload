@@ -23,14 +23,12 @@ import ingredientVitaminDMale from '@/assets/MaleEnhancement/Male_2.jpg';
 import ingredientVitaminB12Male from '@/assets/MaleEnhancement/Male_3.jpg';
 
 // Ingredient images - Women's Gummies
-// _1 = Cranberry Extract, _2 = Dong Quai, _3 = Chasteberry, _4 = Sodium Citrate
 import ingredientCranberry from '@/assets/WomensGummies/WomensGummies_1.jpg';
 import ingredientDongQuai from '@/assets/WomensGummies/WomensGummies_2.jpg';
 import ingredientChasteberry from '@/assets/WomensGummies/WomensGummies_3.jpg';
 import ingredientSodiumCitrate from '@/assets/WomensGummies/WomensGummies_4.jpg';
 
 // Ingredient images - Pre-Workout
-// _1 = L-Citrulline Malate, _2 = Beta-Alanine, _3 = Caffeine, _4 = L-Tyrosine, _5 = BCAA
 import ingredientCitrullineMalate from '@/assets/PreworkOut/PreworkOut_1.jpg';
 import ingredientBetaAlanine from '@/assets/PreworkOut/PreworkOut_2.jpg';
 import ingredientCaffeine from '@/assets/PreworkOut/PreworkOut_3.jpg';
@@ -38,7 +36,6 @@ import ingredientLTyrosine from '@/assets/PreworkOut/PreworkOut_4.jpg';
 import ingredientBCAA from '@/assets/PreworkOut/PreworkOut_5.jpg';
 
 // Ingredient images - Multi Gummies
-// _1 = Pomegranate Extract, _2 = Vitamin B12, _3 = Folate (B9), _4 = Vitamin C, _5 = Zinc
 import ingredientPomegranate from '@/assets/MutiGummies/MutiGummies_1.jpg';
 import ingredientVitaminB12Multi from '@/assets/MutiGummies/MutiGummies_2.jpg';
 import ingredientFolate from '@/assets/MutiGummies/MutiGummies_3.jpg';
@@ -46,7 +43,6 @@ import ingredientVitaminCMulti from '@/assets/MutiGummies/MutiGummies_4.jpg';
 import ingredientZincMulti from '@/assets/MutiGummies/MutiGummies_5.jpg';
 
 // Ingredient images - Sleep Gummies
-// _1 = Passiflora Extract, _2 = Melatonin, _3 = Vitamin B6
 import ingredientPassiflora from '@/assets/SleepGummies/SleepGummies_1.jpg';
 import ingredientMelatonin from '@/assets/SleepGummies/SleepGummies_2.jpg';
 import ingredientVitaminB6 from '@/assets/SleepGummies/SleepGummies_3.jpg';
@@ -92,10 +88,13 @@ export interface IngredientImage {
 
 export interface BundlePricing {
   single: number;
+  singleVariantId: string;
   twoPack: number;
   twoPackOriginal: number;
+  twoPackVariantId: string;
   threePack: number;
   threePackOriginal: number;
+  threePackVariantId: string;
 }
 
 export interface Product {
@@ -123,7 +122,7 @@ export interface Product {
   shortBenefit?: string;
   /** Badge shown on cards: "Best Seller", "Most Popular", "Trending" */
   badge?: string;
-  /** Bundle pricing for single / 2-pack / 3-pack (replaces calculated prices) */
+  /** Bundle pricing for single / 2-pack / 3-pack with Shopify variant IDs */
   bundlePricing?: BundlePricing;
 }
 
@@ -147,10 +146,13 @@ export const PRODUCTS: Product[] = [
     badge: 'Best Seller',
     bundlePricing: {
       single: 42.99,
+      singleVariantId: 'gid://shopify/ProductVariant/51797145682206',
       twoPack: 74.99,
       twoPackOriginal: 85.98,
+      twoPackVariantId: 'gid://shopify/ProductVariant/51797145714974',
       threePack: 99.99,
       threePackOriginal: 128.97,
+      threePackVariantId: 'gid://shopify/ProductVariant/51797145747742',
     },
     images: {
       front: pureloadLemonFront,
@@ -159,7 +161,7 @@ export const PRODUCTS: Product[] = [
     },
     description: 'No powder. No mess. 1000mg of pure creatine monohydrate in every delicious lemon gummy. The easiest way to fuel your gains.',
     shopifyHandle: 'pureload',
-    shopifyVariantId: '50703866003742',
+    shopifyVariantId: 'gid://shopify/ProductVariant/51797145682206',
     servingSize: '1 Gummy',
     servingsPerContainer: 60,
     benefits: [
@@ -178,8 +180,8 @@ export const PRODUCTS: Product[] = [
     ],
     ingredientImages: [
       { name: 'Creatine Monohydrate', image: ingredientCreatineGummy },
-      { name: 'Natural Lemon Flavor', image: ingredientLemonFlavor },
-      { name: 'Calcium Lactate', image: ingredientCalciumLactate },
+      { name: 'Calcium Lactate', image: ingredientLemonFlavor },
+      { name: 'Natural Lemon Flavor', image: ingredientCalciumLactate },
     ],
     ingredientTitle: 'Powered By Science-Backed Ingredients',
     ingredientSubtitle: 'Each ingredient is carefully selected to maximize muscle growth, recovery, and cognitive performance.',
@@ -204,10 +206,13 @@ export const PRODUCTS: Product[] = [
     badge: 'Most Popular',
     bundlePricing: {
       single: 39.99,
+      singleVariantId: 'gid://shopify/ProductVariant/51797145813278',
       twoPack: 69.99,
       twoPackOriginal: 79.98,
+      twoPackVariantId: 'gid://shopify/ProductVariant/51797145846046',
       threePack: 89.99,
       threePackOriginal: 119.97,
+      threePackVariantId: 'gid://shopify/ProductVariant/51797145878814',
     },
     images: {
       front: pureloadMaleFront,
@@ -216,7 +221,7 @@ export const PRODUCTS: Product[] = [
     },
     description: 'Mood enhancement, helps increase drive, and boosts endurance. 60 powerful tablets with Tongkat Ali, Maca, L-Arginine and more.',
     shopifyHandle: 'pureload-male-enhancement-pills',
-    shopifyVariantId: '50704310599966',
+    shopifyVariantId: 'gid://shopify/ProductVariant/51797145813278',
     servingSize: '1 Tablet',
     servingsPerContainer: 30,
     benefits: [
@@ -234,14 +239,11 @@ export const PRODUCTS: Product[] = [
       { label: 'MACA', value: '250mg' },
     ],
     ingredientImages: [
-      { name: 'Tongkat Ali', image: ingredientTongkatAli },
-      { name: 'Maca Root', image: ingredientMaca },
-      { name: 'L-Arginine', image: ingredientLArginine },
-      { name: 'Ginseng', image: ingredientGinseng },
-      { name: 'Zinc', image: ingredientZincMale },
-      { name: 'Vitamin D', image: ingredientVitaminDMale },
-      { name: 'Vitamin B12', image: ingredientVitaminB12Male },
-    ],
+  { name: 'Ginseng', image: ingredientTongkatAli },
+  { name: 'Tongkat Ali', image: ingredientMaca },
+  { name: 'Maca Root', image: ingredientLArginine },
+  { name: 'L-Arginines', image: ingredientGinseng },
+],
     ingredientTitle: 'Powered By Premium Ingredients',
     ingredientSubtitle: 'Each ingredient is carefully selected to maximize energy, endurance, and overall male performance.',
     benefitsTitle: 'Why Men Choose PURELOAD',
@@ -266,10 +268,13 @@ export const PRODUCTS: Product[] = [
     badge: 'Trending',
     bundlePricing: {
       single: 39.99,
+      singleVariantId: 'gid://shopify/ProductVariant/51797145977118',
       twoPack: 69.99,
       twoPackOriginal: 79.98,
+      twoPackVariantId: 'gid://shopify/ProductVariant/51797146009886',
       threePack: 89.99,
       threePackOriginal: 119.97,
+      threePackVariantId: 'gid://shopify/ProductVariant/51797146042654',
     },
     images: {
       front: pureloadWomenFront,
@@ -278,7 +283,7 @@ export const PRODUCTS: Product[] = [
     },
     description: "Women's hormonal support gummies with Vitamin B6, Cranberry Extract, Chasteberry, and Dong Quai. Delicious and effective daily support.",
     shopifyHandle: 'pureload-womens-hormonal-support-gummies',
-    shopifyVariantId: '50704642277662',
+    shopifyVariantId: 'gid://shopify/ProductVariant/51797145977118',
     servingSize: '2 Gummies',
     servingsPerContainer: 30,
     benefits: [
@@ -325,10 +330,13 @@ export const PRODUCTS: Product[] = [
     badge: 'New',
     bundlePricing: {
       single: 49.99,
+      singleVariantId: 'gid://shopify/ProductVariant/51797117993246',
       twoPack: 84.99,
       twoPackOriginal: 99.98,
+      twoPackVariantId: 'gid://shopify/ProductVariant/51797118026014',
       threePack: 119.99,
       threePackOriginal: 149.97,
+      threePackVariantId: 'gid://shopify/ProductVariant/51797118058782',
     },
     images: {
       front: pureloadPreworkoutFront,
@@ -337,7 +345,7 @@ export const PRODUCTS: Product[] = [
     },
     description: 'PURELOAD Wake-Up Pre-Workout in Honeydew Watermelon Rage. Energy support, assists gains & strength, supports muscular pumps. 300g (10.58 oz) of explosive performance fuel.',
     shopifyHandle: 'pureload-wake-up-preworkout',
-    shopifyVariantId: 'gid://shopify/ProductVariant/preworkout-606',
+    shopifyVariantId: 'gid://shopify/ProductVariant/51797117993246',
     servingSize: '1 Scoop (10g)',
     servingsPerContainer: 30,
     benefits: [
@@ -382,10 +390,13 @@ export const PRODUCTS: Product[] = [
     badge: 'New',
     bundlePricing: {
       single: 34.99,
+      singleVariantId: 'gid://shopify/ProductVariant/51797118157086',
       twoPack: 59.99,
       twoPackOriginal: 69.98,
+      twoPackVariantId: 'gid://shopify/ProductVariant/51797118189854',
       threePack: 79.99,
       threePackOriginal: 104.97,
+      threePackVariantId: 'gid://shopify/ProductVariant/51797118222622',
     },
     images: {
       front: pureloadMultiFront,
@@ -394,7 +405,7 @@ export const PRODUCTS: Product[] = [
     },
     description: 'PURELOAD Multi Gummies in Strawberry Surge. Daily nutrition & immune support with Pomegranate Extract, Vitamin B12, Folate, Vitamin C and Zinc. 60 delicious gummies.',
     shopifyHandle: 'pureload-multi-gummies',
-    shopifyVariantId: 'gid://shopify/ProductVariant/multi-918',
+    shopifyVariantId: 'gid://shopify/ProductVariant/51797118157086',
     servingSize: '2 Gummies',
     servingsPerContainer: 30,
     benefits: [
@@ -413,9 +424,9 @@ export const PRODUCTS: Product[] = [
       { label: 'FLAVOR', value: 'BERRY' },
     ],
     ingredientImages: [
-      { name: 'Pomegranate Extract', image: ingredientPomegranate },
-      { name: 'Vitamin B12', image: ingredientVitaminB12Multi },
-      { name: 'Folate (Vitamin B9)', image: ingredientFolate },
+      { name: 'Vitamin B12', image: ingredientPomegranate },
+      { name: 'Vitamin B9', image: ingredientVitaminB12Multi },
+      { name: 'Vitamin 8', image: ingredientFolate },
       { name: 'Vitamin C', image: ingredientVitaminCMulti },
       { name: 'Zinc', image: ingredientZincMulti },
     ],
@@ -439,10 +450,13 @@ export const PRODUCTS: Product[] = [
     badge: 'New',
     bundlePricing: {
       single: 34.99,
+      singleVariantId: 'gid://shopify/ProductVariant/51797118419230',
       twoPack: 59.99,
       twoPackOriginal: 69.98,
+      twoPackVariantId: 'gid://shopify/ProductVariant/51797118451998',
       threePack: 79.99,
       threePackOriginal: 104.97,
+      threePackVariantId: 'gid://shopify/ProductVariant/51797118484766',
     },
     images: {
       front: pureloadSleepFront,
@@ -451,7 +465,7 @@ export const PRODUCTS: Product[] = [
     },
     description: 'PURELOAD Sleep System Recovery Gummies — Passion Fruit. Designed to help you fall asleep faster, sleep deeper and wake up recharged. 60 gummies.',
     shopifyHandle: 'pureload-sleep-gummies',
-    shopifyVariantId: 'gid://shopify/ProductVariant/sleep-920',
+    shopifyVariantId: 'gid://shopify/ProductVariant/51797118419230',
     servingSize: '2 Gummies',
     servingsPerContainer: 30,
     benefits: [
@@ -494,10 +508,13 @@ export const PRODUCTS: Product[] = [
     badge: 'New',
     bundlePricing: {
       single: 34.99,
+      singleVariantId: 'gid://shopify/ProductVariant/51797118517534',
       twoPack: 69.99,
       twoPackOriginal: 69.98,
+      twoPackVariantId: 'gid://shopify/ProductVariant/51797118550302',
       threePack: 89.99,
       threePackOriginal: 104.97,
+      threePackVariantId: 'gid://shopify/ProductVariant/51797118583070',
     },
     images: {
       front: pureloadAshwaFront,
@@ -506,7 +523,7 @@ export const PRODUCTS: Product[] = [
     },
     description: 'PURELOAD Ashwagandha Gummies — Berry Fusion. Root extract adaptogen at 150mg per serving. Helps mute anxiety, balance mood and support recovery.',
     shopifyHandle: 'pureload-ashwagandha-gummies',
-    shopifyVariantId: 'gid://shopify/ProductVariant/ashwa-929',
+    shopifyVariantId: 'gid://shopify/ProductVariant/51797118517534',
     servingSize: '2 Gummies',
     servingsPerContainer: 30,
     benefits: [
@@ -548,10 +565,13 @@ export const PRODUCTS: Product[] = [
     badge: 'New',
     bundlePricing: {
       single: 39.99,
+      singleVariantId: 'gid://shopify/ProductVariant/51797118648606',
       twoPack: 69.99,
       twoPackOriginal: 79.98,
+      twoPackVariantId: 'gid://shopify/ProductVariant/51797118681374',
       threePack: 89.99,
       threePackOriginal: 119.97,
+      threePackVariantId: 'gid://shopify/ProductVariant/51797118714142',
     },
     images: {
       front: pureloadDebloatFront,
@@ -560,7 +580,7 @@ export const PRODUCTS: Product[] = [
     },
     description: 'PURELOAD Debloat ACV Gummies — Apple Crisp. Apple Cider Vinegar gummies that help detox, digest, burn and cleanse. Reset your system.',
     shopifyHandle: 'pureload-debloat-acv-gummies',
-    shopifyVariantId: 'gid://shopify/ProductVariant/debloat-930',
+    shopifyVariantId: 'gid://shopify/ProductVariant/51797118648606',
     servingSize: '2 Gummies',
     servingsPerContainer: 30,
     benefits: [
@@ -579,11 +599,11 @@ export const PRODUCTS: Product[] = [
       { label: 'FLAVOR', value: 'APPLE' },
     ],
     ingredientImages: [
-      { name: 'Apple Cider Vinegar', image: ingredientDebloat1 },
-      { name: 'Ginger Root', image: ingredientDebloat2 },
+      { name: 'Pomegranate Extract', image: ingredientDebloat1 },
+      { name: 'L-Arginine', image: ingredientDebloat2 },
       { name: 'Dandelion Extract', image: ingredientDebloat3 },
-      { name: 'Probiotics', image: ingredientDebloat4 },
-      { name: 'Digestive Enzymes', image: ingredientDebloat5 },
+      { name: 'Vitamin B12', image: ingredientDebloat4 },
+      { name: 'Apple Cider Vinegar', image: ingredientDebloat5 },
     ],
     ingredientTitle: 'Powered By Digestive Science',
     ingredientSubtitle: 'Each ingredient is selected to support gut health, reduce bloating, and help your body naturally cleanse and reset.',

@@ -59,12 +59,6 @@ const StarIcon = ({ filled }: { filled: boolean }) => (
   </svg>
 );
 
-const Stars = ({ count }: { count: number }) => (
-  <div style={{ display: 'flex', gap: 3 }}>
-    {[1,2,3,4,5].map(i => <StarIcon key={i} filled={i <= count} />)}
-  </div>
-);
-
 const TrustBadge = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
   <div style={{
     display: 'flex', alignItems: 'center', gap: 7,
@@ -137,23 +131,31 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
 
   const bp = product.bundlePricing;
   const packs = bp ? [
-    { items: 1, price: bp.single, original: bp.single, label: '1-Bottle', tag: '' },
-    { items: 2, price: bp.twoPack, original: bp.twoPackOriginal, label: '2-Pack', tag: 'Popular' },
-    { items: 3, price: bp.threePack, original: bp.threePackOriginal, label: '3-Pack', tag: 'Best Value' },
+    { items: 1, price: bp.single, original: bp.single, label: '1-Bottle', tag: '', variantId: bp.singleVariantId },
+    { items: 2, price: bp.twoPack, original: bp.twoPackOriginal, label: '2-Pack', tag: 'Popular', variantId: bp.twoPackVariantId },
+    { items: 3, price: bp.threePack, original: bp.threePackOriginal, label: '3-Pack', tag: 'Best Value', variantId: bp.threePackVariantId },
   ] : [
-    { items: 1, price: product.price, original: product.price, label: '1-Bottle', tag: '' },
-    { items: 2, price: Math.round(product.price * 1.75 * 100) / 100, original: Math.round(product.price * 2 * 100) / 100, label: '2-Pack', tag: 'Popular' },
-    { items: 3, price: Math.round(product.price * 2.5 * 100) / 100, original: Math.round(product.price * 3 * 100) / 100, label: '3-Pack', tag: 'Best Value' },
+    { items: 1, price: product.price, original: product.price, label: '1-Bottle', tag: '', variantId: product.shopifyVariantId },
+    { items: 2, price: Math.round(product.price * 1.75 * 100) / 100, original: Math.round(product.price * 2 * 100) / 100, label: '2-Pack', tag: 'Popular', variantId: product.shopifyVariantId },
+    { items: 3, price: Math.round(product.price * 2.5 * 100) / 100, original: Math.round(product.price * 3 * 100) / 100, label: '3-Pack', tag: 'Best Value', variantId: product.shopifyVariantId },
   ];
 
   const currentPack = selectedPack.price > 0
     ? selectedPack
     : packs.find(p => p.label === selectedPack.label) || packs[2];
+
+  // Resolve the matching Shopify variant for the currently-selected pack.
+  // Falls back to the product's default variant for safety.
+  const currentVariantId =
+    (currentPack as { variantId?: string }).variantId ||
+    packs.find(p => p.label === currentPack.label)?.variantId ||
+    product.shopifyVariantId;
+
   const finalPrice = subscribe ? currentPack.price * (1 - subInterval.discount) : currentPack.price;
 
   const handleAdd = () => {
     const label = `${product.name} ${currentPack.label}${subscribe ? ` (Sub ${subInterval.label})` : ''}`;
-    onAddCart(qty, finalPrice, label, product.shopifyVariantId, subscribe, subscribe ? subInterval.value : undefined);
+    onAddCart(qty, finalPrice, label, currentVariantId, subscribe, subscribe ? subInterval.value : undefined);
   };
 
   const relatedProducts = PRODUCTS.filter(f => f.slug !== slug);
@@ -406,13 +408,18 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 + i * 0.08, duration: 0.4 }}
                     >
-                      <div style={{ aspectRatio: '1/1', overflow: 'hidden' }}>
-                        <img
-                          src={ing.image} alt={ing.name} loading="lazy"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .4s' }}
-                          className="group-hover:scale-105"
-                        />
-                      </div>
+                      <div style={{ aspectRatio: '1/1', overflow: 'hidden', background: '#111' }}>
+  <img
+    src={ing.image} alt={ing.name} loading="lazy"
+    style={{ 
+      width: '100%', height: '100%', 
+      objectFit: 'contain',  // ← changed from 'cover' to 'contain'
+      transition: 'transform .4s',
+      padding: '8px'         // ← small padding so image doesn't touch edges
+    }}
+    className="group-hover:scale-105"
+  />
+</div>
                       <div style={{
                         padding: '8px 6px', fontFamily: 'var(--font-ui)', fontSize: 8,
                         fontWeight: 700, letterSpacing: 1.5, color: 'hsl(var(--primary))',

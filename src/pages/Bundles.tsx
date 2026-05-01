@@ -29,6 +29,11 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
     twoPack: bp.twoPackOriginal,
     threePack: bp.threePackOriginal,
   };
+  const variantIdMap: Record<string, string> = {
+    single: bp.singleVariantId,
+    twoPack: bp.twoPackVariantId,
+    threePack: bp.threePackVariantId,
+  };
 
   const currentPrice = priceMap[selectedPack.key];
   const originalPrice = originalMap[selectedPack.key];
@@ -36,6 +41,15 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
   const handlePackClick = (pack: typeof PACK_OPTIONS[0]) => {
     setSelectedPack(pack);
     setModalOpen(true);
+  };
+
+  // Centralised add-to-cart that picks the matching Shopify variant for the
+  // selected pack. We send qty=1 because the variant itself IS the bundle
+  // (a "2-Pack" variant already represents 2 bottles). Multiplying by qty
+  // would double-count.
+  const handleAddBundleToCart = () => {
+    const variantId = variantIdMap[selectedPack.key];
+    onAddCart(1, currentPrice, `${selectedProduct.name} — ${selectedPack.label}`, variantId);
   };
 
   return (
@@ -163,7 +177,7 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
       <div className="text-center py-8 px-6">
         <motion.button className="atc" style={{ maxWidth: 480, margin: '0 auto', display: 'block' }}
           whileHover={{ scale: 1.03 } as any} whileTap={{ scale: 0.97 } as any}
-          onClick={() => onAddCart(selectedPack.qty, currentPrice, `${selectedProduct.name} — ${selectedPack.label}`, selectedProduct.shopifyVariantId)}>
+          onClick={handleAddBundleToCart}>
           ADD {selectedPack.label} TO CART — ${currentPrice.toFixed(2)}
         </motion.button>
         {selectedPack.savePct > 0 && (
@@ -285,7 +299,7 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
                   <motion.button className="atc" style={{ width: '100%' }}
                     whileHover={{ scale: 1.02 } as any} whileTap={{ scale: 0.98 } as any}
                     onClick={() => {
-                      onAddCart(selectedPack.qty, currentPrice, `${selectedProduct.name} — ${selectedPack.label}`, selectedProduct.shopifyVariantId);
+                      handleAddBundleToCart();
                       setModalOpen(false);
                     }}>
                     ADD {selectedPack.label} TO CART — ${currentPrice.toFixed(2)}

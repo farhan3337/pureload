@@ -3,6 +3,22 @@ const STOREFRONT_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN || '';
 
 const STOREFRONT_API_URL = `https://${SHOPIFY_DOMAIN}/api/2024-01/graphql.json`;
 
+// ─── Selling Plan IDs (Shopify Subscriptions app) ──────────────────────────
+// Maps interval-in-days → Shopify Selling Plan ID
+// These IDs come from Apps → Subscriptions → Plans → click each plan.
+// Update these if you ever recreate the plans.
+export const SELLING_PLAN_IDS: Record<number, string> = {
+  30: 'gid://shopify/SellingPlan/9824600350',  // 30-day, 15% off
+  60: 'gid://shopify/SellingPlan/9824633118',  // 60-day, 12% off
+  90: 'gid://shopify/SellingPlan/9824665886',  // 90-day, 10% off
+};
+
+/** Convert a numeric ID or raw gid:// to the canonical gid:// form for Shopify. */
+function toShopifyGid(prefix: 'ProductVariant' | 'SellingPlan', id: string): string {
+  if (id.startsWith('gid://')) return id;
+  return `gid://shopify/${prefix}/${id}`;
+}
+
 async function shopifyFetch(query: string, variables: Record<string, unknown> = {}) {
   const response = await fetch(STOREFRONT_API_URL, {
     method: 'POST',
@@ -15,24 +31,35 @@ async function shopifyFetch(query: string, variables: Record<string, unknown> = 
   return response.json();
 }
 
-export async function createCheckout(lineItems: { variantId: string; quantity: number }[]) {
-  // Format variant IDs for Shopify
-  const formattedItems = lineItems.map(item => ({
-    variantId: item.variantId.startsWith('gid://') 
-      ? item.variantId 
-      : `gid://shopify/ProductVariant/${item.variantId}`,
+// ─── Cart-based checkout (with selling plan support) ───────────────────────
+// We use Shopify's modern Cart API instead of the deprecated Checkout API
+// because Cart API supports sellingPlanId on line items, which is required
+// for subscription pricing to apply at checkout.
+
+export interface CheckoutLineItem {
+  variantId: string;
+  quantity: number;
+  /** Optional Shopify Selling Plan ID. When set, the line item subscribes. */
+  sellingPlanId?: string;
+}
+
+export async function createCheckout(lineItems: CheckoutLineItem[]) {
+  const formattedLines = lineItems.map(item => ({
+    merchandiseId: toShopifyGid('ProductVariant', item.variantId),
     quantity: item.quantity,
+    ...(item.sellingPlanId
+      ? { sellingPlanId: toShopifyGid('SellingPlan', item.sellingPlanId) }
+      : {}),
   }));
 
   const query = `
-    mutation checkoutCreate($input: CheckoutCreateInput!) {
-      checkoutCreate(input: $input) {
-        checkout {
+    mutation cartCreate($input: CartInput!) {
+      cartCreate(input: $input) {
+        cart {
           id
-          webUrl
+          checkoutUrl
         }
-        checkoutUserErrors {
-          code
+        userErrors {
           field
           message
         }
@@ -42,28 +69,80 @@ export async function createCheckout(lineItems: { variantId: string; quantity: n
 
   try {
     const data = await shopifyFetch(query, {
-      input: { lineItems: formattedItems },
+      input: { lines: formattedLines },
     });
-    
-    if (data?.data?.checkoutCreate?.checkout?.webUrl) {
-      return data.data.checkoutCreate.checkout.webUrl;
+
+    const errors = data?.data?.cartCreate?.userErrors;
+    if (errors?.length) {
+      console.error('Cart create errors:', errors);
     }
-    
-    // Fallback: direct URL checkout
+
+    const url = data?.data?.cartCreate?.cart?.checkoutUrl;
+    if (url) return url;
+
+    // Fallback: direct cart URL (no selling plan support but works without API token)
     return createDirectCheckoutUrl(lineItems);
-  } catch {
+  } catch (err) {
+    console.error('Cart create failed:', err);
     return createDirectCheckoutUrl(lineItems);
   }
 }
 
-function createDirectCheckoutUrl(lineItems: { variantId: string; quantity: number }[]) {
+function createDirectCheckoutUrl(lineItems: CheckoutLineItem[]) {
+  // Two-stage approach for the URL fallback:
+  //
+  // 1. If we only have one line item, use the /cart/add endpoint with form
+  //    parameters. This is Shopify's documented way to add a single item with
+  //    a selling plan via URL — it handles the plan attachment server-side
+  //    rather than as a hint, so the discount actually applies at checkout.
+  //
+  // 2. For multi-item carts (rare in our flow), fall back to /cart/{permalink}
+  //    syntax. Selling plans are best-effort here and may not persist.
+  //
+  // Note: For full reliability (especially mixed subscription+one-time carts),
+  // configure VITE_SHOPIFY_STOREFRONT_TOKEN so the modern Cart API runs.
+
+  if (lineItems.length === 1) {
+    const item = lineItems[0];
+    const variantId = item.variantId.replace('gid://shopify/ProductVariant/', '');
+    const sellingPlanId = item.sellingPlanId?.replace('gid://shopify/SellingPlan/', '');
+
+    const params = new URLSearchParams();
+    params.set('id', variantId);
+    params.set('quantity', String(item.quantity));
+    if (sellingPlanId) {
+      params.set('selling_plan', sellingPlanId);
+    }
+    // /cart/add immediately processes the line item server-side then redirects
+    // to /cart, which means the selling plan is committed before the redirect.
+    return `https://${SHOPIFY_DOMAIN}/cart/add?${params.toString()}&return_to=/checkout`;
+  }
+
+  // Multi-item permalink (selling plans best-effort)
   const items = lineItems.map(item => {
-    const id = item.variantId.replace('gid://shopify/ProductVariant/', '');
-    return `${id}:${item.quantity}`;
+    const variantId = item.variantId.replace('gid://shopify/ProductVariant/', '');
+    return `${variantId}:${item.quantity}`;
   }).join(',');
-  
-  return `https://${SHOPIFY_DOMAIN}/cart/${items}`;
+
+  const sellingPlans = Array.from(new Set(
+    lineItems
+      .map(i => i.sellingPlanId?.replace('gid://shopify/SellingPlan/', ''))
+      .filter(Boolean)
+  ));
+
+  let url = `https://${SHOPIFY_DOMAIN}/cart/${items}`;
+  if (sellingPlans.length === 1) {
+    url += `?selling_plan=${sellingPlans[0]}`;
+  } else if (sellingPlans.length > 1) {
+    console.warn(
+      'Multiple subscription intervals in one cart cannot be applied via URL ' +
+      'fallback. Configure VITE_SHOPIFY_STOREFRONT_TOKEN for full support.'
+    );
+  }
+  return url;
 }
+
+// ─── Customer auth (unchanged) ─────────────────────────────────────────────
 
 export async function createCustomerAccount(email: string, password: string, firstName: string, lastName: string) {
   const query = `
@@ -191,11 +270,7 @@ export async function customerLogout(accessToken: string) {
   }
 }
 
-// ─── Subscription helpers ───────────────────────────────────────────────────
-// Shopify's native Subscriptions app exposes subscription contracts via the
-// Storefront API under the customer object. Customers can pause/resume their
-// own contracts using the customerSubscriptionContractPause /
-// customerSubscriptionContractResume mutations (available since API 2022-10).
+// ─── Subscription contract management (customer-facing) ────────────────────
 
 export interface SubscriptionContract {
   id: string;

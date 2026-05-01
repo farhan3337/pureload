@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
+import heroBg from '../assets/image-2.jpeg'; // adjust path if needed
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -255,7 +256,7 @@ const System = () => {
       style={{
         position: 'absolute',
         inset: 0,
-        backgroundImage: 'url(src/assets/image-2.jpeg)', // ← drop the gym image here
+        backgroundImage: `url(${heroBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
