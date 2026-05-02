@@ -166,12 +166,6 @@ const ProductReviews = ({ reviews, productName }: ProductReviewsProps = {}) => {
         pointerEvents: 'none', filter: 'blur(50px)',
       }} />
 
-      {/* Accent line */}
-      <motion.div aria-hidden style={{
-        position: 'absolute', left: '50%', top: '15%', bottom: '15%', width: 1,
-        background: 'linear-gradient(180deg, transparent 0%, hsl(var(--primary) / 0.35) 50%, transparent 100%)',
-        scaleY: lineScale, transformOrigin: 'top',
-      }} />
 
       <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 

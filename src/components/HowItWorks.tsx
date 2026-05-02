@@ -1,19 +1,50 @@
 import howBg from "../assets/how-it-works.jpeg";
+
 const HowItWorks = () => {
   return (
     <div id="ch-how" className="ch-how-wrap">
+      <style>{`
+        #s-how {
+          min-height: 100vh;
+          padding-top: clamp(100px, 18vw, 180px);
+          padding-bottom: clamp(60px, 10vw, 120px);
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+        }
+
+        .how-cards {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 14px;
+          margin-top: 48px;
+        }
+
+        @media (max-width: 900px) {
+          .how-cards {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+
+          .hc {
+            background: rgba(10, 10, 10, 0.80) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+          }
+        }
+      `}</style>
+
       <section
         id="s-how"
         style={{
-          // ── Product image background ──
           backgroundImage: `url(${howBg})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center 30%',
+          backgroundPosition: 'center top',
           backgroundRepeat: 'no-repeat',
           position: 'relative',
         }}
       >
-        {/* Dark gradient overlay — keeps text readable over the busy photo */}
+        {/* Dark gradient overlay — lighter on mobile so image shows */}
         <div
           aria-hidden
           style={{
@@ -22,17 +53,17 @@ const HowItWorks = () => {
             background: `
               linear-gradient(
                 to bottom,
-                rgba(0,0,0,0.82) 0%,
-                rgba(0,0,0,0.55) 40%,
-                rgba(0,0,0,0.55) 60%,
-                rgba(0,0,0,0.88) 100%
+                rgba(0,0,0,0.68) 0%,
+                rgba(0,0,0,0.40) 35%,
+                rgba(0,0,0,0.40) 65%,
+                rgba(0,0,0,0.85) 100%
               )
             `,
             zIndex: 0,
           }}
         />
 
-        {/* Subtle orange vignette that echoes the product's fire tones */}
+        {/* Subtle orange vignette */}
         <div
           aria-hidden
           style={{
@@ -46,22 +77,6 @@ const HowItWorks = () => {
 
         <div className="how-noise" style={{ zIndex: 1 }} />
 
-        {/* Vertical accent line */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '20%',
-            bottom: '20%',
-            width: 1,
-            background:
-              'linear-gradient(180deg, transparent 0%, hsl(var(--primary) / 0.45) 50%, transparent 100%)',
-            zIndex: 1,
-          }}
-        />
-
-        {/* rest of your content unchanged — just make sure zIndex: 1 is on the content wrapper */}
         <div
           style={{
             width: '100%',
@@ -108,7 +123,6 @@ const HowItWorks = () => {
             <div className="hc" id="hc1">
               <div className="hc-n">01</div>
 
-              {/* Icon tile */}
               <div
                 style={{
                   width: 56,
@@ -125,7 +139,6 @@ const HowItWorks = () => {
                   zIndex: 1,
                 }}
               >
-                {/* Custom: stacked product cards / browse icon */}
                 <svg
                   width="28"
                   height="28"
@@ -149,7 +162,6 @@ const HowItWorks = () => {
                 your perfect fit.
               </div>
 
-              {/* Step connector arrow */}
               <div
                 aria-hidden
                 style={{
@@ -193,7 +205,6 @@ const HowItWorks = () => {
                   zIndex: 1,
                 }}
               >
-                {/* Custom: bottle + sun (daily routine) */}
                 <svg
                   width="28"
                   height="28"
@@ -258,7 +269,6 @@ const HowItWorks = () => {
                   zIndex: 1,
                 }}
               >
-                {/* Custom: rising bars + arrow (transformation/progress) */}
                 <svg
                   width="28"
                   height="28"
@@ -281,7 +291,6 @@ const HowItWorks = () => {
                 results.
               </div>
 
-              {/* Final step gets a "GOAL" badge instead of NEXT */}
               <div
                 aria-hidden
                 style={{

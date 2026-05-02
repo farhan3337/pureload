@@ -61,7 +61,7 @@ const ProductSection = ({ onGotoSection }: ProductSectionProps) => {
         />
 
         {/* Vertical accent line, scroll-driven */}
-        <motion.div
+        {/* <motion.div
           aria-hidden
           style={{
             position: 'absolute',
@@ -74,7 +74,7 @@ const ProductSection = ({ onGotoSection }: ProductSectionProps) => {
             transformOrigin: 'top',
             zIndex: 0,
           }}
-        />
+        /> */}
 
         <div className="prd-grid" style={{ position: 'relative', zIndex: 1 }}>
 

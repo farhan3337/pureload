@@ -408,14 +408,15 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 + i * 0.08, duration: 0.4 }}
                     >
-                      <div style={{ aspectRatio: '1/1', overflow: 'hidden', background: '#111' }}>
+                      <div style={{ background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
   <img
     src={ing.image} alt={ing.name} loading="lazy"
     style={{ 
-      width: '100%', height: '100%', 
-      objectFit: 'contain',  // ← changed from 'cover' to 'contain'
+      width: '100%',
+      height: 'auto',
+      display: 'block',
+      objectFit: 'contain',
       transition: 'transform .4s',
-      padding: '8px'         // ← small padding so image doesn't touch edges
     }}
     className="group-hover:scale-105"
   />

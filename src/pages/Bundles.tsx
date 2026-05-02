@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { PRODUCTS } from '@/data/pureload';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '@/components/Footer';
@@ -17,6 +17,9 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
   const [selectedProduct, setSelectedProduct] = useState(PRODUCTS[0]);
   const [selectedPack, setSelectedPack] = useState(PACK_OPTIONS[2]);
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Ref to Step 2 — used for mobile auto-scroll
+  const step2Ref = useRef<HTMLDivElement>(null);
 
   const bp = selectedProduct.bundlePricing!;
   const priceMap: Record<string, number> = {
@@ -38,15 +41,21 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
   const currentPrice = priceMap[selectedPack.key];
   const originalPrice = originalMap[selectedPack.key];
 
+  const handleProductSelect = (product: typeof PRODUCTS[0]) => {
+    setSelectedProduct(product);
+    // Auto-scroll to Step 2 on mobile only
+    if (window.innerWidth < 768 && step2Ref.current) {
+      setTimeout(() => {
+        step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  };
+
   const handlePackClick = (pack: typeof PACK_OPTIONS[0]) => {
     setSelectedPack(pack);
     setModalOpen(true);
   };
 
-  // Centralised add-to-cart that picks the matching Shopify variant for the
-  // selected pack. We send qty=1 because the variant itself IS the bundle
-  // (a "2-Pack" variant already represents 2 bottles). Multiplying by qty
-  // would double-count.
   const handleAddBundleToCart = () => {
     const variantId = variantIdMap[selectedPack.key];
     onAddCart(1, currentPrice, `${selectedProduct.name} — ${selectedPack.label}`, variantId);
@@ -54,6 +63,14 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
 
   return (
     <div className="min-h-screen" style={{ background: 'hsl(var(--pl-black))' }}>
+
+      {/* Mobile-only styles */}
+      <style>{`
+        @media (max-width: 767px) {
+          .mobile-step-nudge { display: block !important; }
+        }
+      `}</style>
+
       {/* Header */}
       <div className="pt-[100px] pb-10 px-6 md:px-20 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
@@ -71,18 +88,19 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
         </motion.p>
       </div>
 
-      {/* Step 1 — Product Selector (bigger) */}
+      {/* Step 1 — Product Selector */}
       <div className="px-6 md:px-20 max-w-[1400px] mx-auto pb-8">
         <motion.p initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
           style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'rgba(255,255,255,.35)', marginBottom: 16 }}>
           Step 1 — Choose Your Product
         </motion.p>
+
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {PRODUCTS.filter(p => p.bundlePricing).map((p, i) => (
             <motion.button key={p.slug}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: i * 0.06, duration: 0.5 }}
-              onClick={() => setSelectedProduct(p)}
+              onClick={() => handleProductSelect(p)}
               className="flex flex-col items-center gap-3 rounded-2xl p-4 transition-all duration-200"
               style={{
                 background: selectedProduct.slug === p.slug ? 'rgba(255,90,0,.1)' : '#0d0d0d',
@@ -101,14 +119,41 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
             </motion.button>
           ))}
         </div>
+
+        {/* Mobile-only: confirmation nudge after selecting a product */}
+        <motion.div
+          key={selectedProduct.slug}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="mobile-step-nudge"
+          style={{
+            display: 'none', // overridden to block on mobile via <style>
+            marginTop: 16,
+            padding: '12px 16px',
+            borderRadius: 12,
+            background: 'rgba(255,90,0,0.07)',
+            border: '1px solid rgba(255,90,0,0.25)',
+            textAlign: 'center',
+          }}
+        >
+          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 700, color: 'hsl(var(--primary))', letterSpacing: 1.5, textTransform: 'uppercase' }}>
+            ✓ {selectedProduct.name} selected — scroll down to choose your pack ↓
+          </span>
+        </motion.div>
       </div>
 
-      {/* Step 2 — Pack Selector (bigger) */}
-      <div className="px-6 md:px-20 max-w-[1400px] mx-auto pb-12">
+      {/* Step 2 — Pack Selector — scroll target */}
+      <div
+        ref={step2Ref}
+        style={{ scrollMarginTop: 80 }}
+        className="px-6 md:px-20 max-w-[1400px] mx-auto pb-12"
+      >
         <motion.p initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
           style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'rgba(255,255,255,.35)', marginBottom: 16 }}>
-          Step 2 — Choose Your Pack (click to see details)
+          Step 2 — Choose Your Pack (tap to see details)
         </motion.p>
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {PACK_OPTIONS.map((pack, idx) => {
             const price = priceMap[pack.key];
@@ -142,7 +187,6 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
                 </div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,.35)', marginBottom: 20 }}>{pack.desc}</div>
 
-                {/* Product images stacked */}
                 <div className="flex items-center gap-2 mb-6 flex-1">
                   {Array.from({ length: pack.qty }).map((_, i) => (
                     <div key={i} style={{ flex: 1, height: 100, background: selectedProduct.bg, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -189,16 +233,14 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
 
       <Footer />
 
-      {/* ── Animated Bundle Detail Modal ── */}
+      {/* ── Bundle Detail Modal ── */}
       <AnimatePresence>
         {modalOpen && (
           <>
-            {/* Backdrop */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setModalOpen(false)}
               style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.75)', backdropFilter: 'blur(6px)' }} />
 
-            {/* Modal panel */}
             <motion.div
               initial={{ opacity: 0, y: 80, scale: 0.92 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -219,11 +261,9 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
                 maxWidth: 680, width: '100%',
                 maxHeight: '90vh', overflowY: 'auto',
               }}>
-                {/* Top accent */}
                 <div style={{ height: 4, background: 'linear-gradient(90deg,hsl(var(--primary)),transparent)', borderRadius: '28px 28px 0 0' }} />
 
                 <div style={{ padding: '36px 36px 28px' }}>
-                  {/* Header row */}
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
                     <div>
                       {selectedPack.tag && (
@@ -244,7 +284,6 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
                     </button>
                   </div>
 
-                  {/* Product images */}
                   <div style={{ display: 'flex', gap: 12, marginBottom: 28, justifyContent: 'center' }}>
                     {Array.from({ length: selectedPack.qty }).map((_, i) => (
                       <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
@@ -254,7 +293,6 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
                     ))}
                   </div>
 
-                  {/* Product details */}
                   <div style={{ background: 'rgba(255,255,255,.03)', borderRadius: 16, padding: '20px', border: '1px solid rgba(255,255,255,.06)', marginBottom: 20 }}>
                     <div style={{ fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700, letterSpacing: 2, color: 'rgba(255,255,255,.3)', textTransform: 'uppercase', marginBottom: 12 }}>
                       What's Included
@@ -269,7 +307,6 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
                     </div>
                   </div>
 
-                  {/* Pricing */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
@@ -295,7 +332,6 @@ const Bundles = ({ onAddCart }: BundlesProps) => {
                     </div>
                   </div>
 
-                  {/* Add to Cart CTA */}
                   <motion.button className="atc" style={{ width: '100%' }}
                     whileHover={{ scale: 1.02 } as any} whileTap={{ scale: 0.98 } as any}
                     onClick={() => {

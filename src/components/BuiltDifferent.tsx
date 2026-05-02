@@ -136,7 +136,7 @@ const BuiltDifferent = () => {
       />
 
       {/* Floating accent line */}
-      <motion.div
+      {/* <motion.div
         aria-hidden
         style={{
           position: 'absolute',
@@ -149,7 +149,7 @@ const BuiltDifferent = () => {
           scaleY: useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0.6]),
           transformOrigin: 'top',
         }}
-      />
+      /> */}
 
       <div style={{ position: 'relative', maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
         {/* ── Header with scroll parallax ── */}

@@ -159,7 +159,6 @@ const ParallaxSection = ({ children, style }: { children: React.ReactNode; style
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const bgY = useTransform(scrollYProgress, [0, 1], [0, -120]);
   const glowOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.2, 0.8, 0.2]);
-  const lineScale = useTransform(scrollYProgress, [0.15, 0.65], [0, 1]);
 
   return (
     <div ref={ref} style={{ position: 'relative', overflow: 'hidden', ...style }}>
@@ -176,11 +175,6 @@ const ParallaxSection = ({ children, style }: { children: React.ReactNode; style
         width: '60vw', height: '60vw', maxWidth: 800, maxHeight: 800,
         background: 'radial-gradient(circle, hsl(var(--primary) / 0.09) 0%, transparent 60%)',
         pointerEvents: 'none', filter: 'blur(50px)',
-      }} />
-      <motion.div aria-hidden style={{
-        position: 'absolute', left: '50%', top: '15%', bottom: '15%', width: 1,
-        background: 'linear-gradient(180deg, transparent 0%, hsl(var(--primary) / 0.3) 50%, transparent 100%)',
-        scaleY: lineScale, transformOrigin: 'top',
       }} />
       <div style={{ position: 'relative', zIndex: 1 }}>{children}</div>
     </div>
@@ -257,11 +251,8 @@ const StacksPage = ({ onAddCart }: {
       </ParallaxSection>
 
       {/* ── EXPLAINER TILES ── */}
-      <ParallaxSection style={{
-        padding: 'clamp(48px, 8vw, 100px) clamp(16px, 5vw, 80px)',
-      }}>
+      <ParallaxSection style={{ padding: 'clamp(48px, 8vw, 100px) clamp(16px, 5vw, 80px)' }}>
         <div style={{ maxWidth: 960, margin: '0 auto' }}>
-          {/* On mobile: 1 col, tablet+: 3 col */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
@@ -327,13 +318,10 @@ const StacksPage = ({ onAddCart }: {
       </ParallaxSection>
 
       {/* ── STACK CARDS ── */}
-      <ParallaxSection style={{
-        padding: '0 clamp(16px, 5vw, 80px) clamp(60px, 10vw, 140px)',
-      }}>
+      <ParallaxSection style={{ padding: '0 clamp(16px, 5vw, 80px) clamp(60px, 10vw, 140px)' }}>
         <div style={{
           maxWidth: 1200, margin: '0 auto',
           display: 'grid',
-          /* KEY FIX: min(100%, 520px) means never wider than 520px but always fits 1 col on mobile */
           gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 520px), 1fr))',
           gap: 20,
         }}>
@@ -354,7 +342,6 @@ const StacksPage = ({ onAddCart }: {
                 transition: 'border-color .3s, box-shadow .3s',
                 boxShadow: hoveredId === stack.id ? `0 24px 70px ${stack.accentColor}18` : 'none',
                 position: 'relative',
-                /* Prevent card from overflowing viewport */
                 minWidth: 0,
                 width: '100%',
               }}
@@ -362,26 +349,17 @@ const StacksPage = ({ onAddCart }: {
               {/* Accent bar top */}
               <div style={{ height: 3, background: `linear-gradient(90deg, ${stack.accentColor}, ${stack.accentColor}00)` }} />
 
-              {/* Badge */}
-              {stack.badge && (
-                <div style={{
-                  position: 'absolute', top: 20, right: 20,
-                  background: stack.accentColor, color: '#000',
-                  fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 900,
-                  letterSpacing: 2, padding: '4px 10px', borderRadius: 100,
-                  textTransform: 'uppercase',
-                }}>
-                  {stack.badge}
-                </div>
-              )}
-
               <div style={{ padding: 'clamp(20px, 4vw, 28px) clamp(16px, 4vw, 28px) 0' }}>
 
-                {/* Header */}
+                {/* ── Header: icon + text + badge all in one row, no absolute positioning ── */}
                 <div style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16,
-                  paddingRight: stack.badge ? 80 : 0, /* space for badge */
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 14,
+                  marginBottom: 16,
+                  flexWrap: 'wrap',
                 }}>
+                  {/* Icon */}
                   <motion.div
                     whileHover={{ rotate: -5, scale: 1.07 }}
                     transition={{ duration: 0.3 }}
@@ -395,12 +373,13 @@ const StacksPage = ({ onAddCart }: {
                   >
                     <div style={{ width: 28, height: 28 }}><stack.Icon /></div>
                   </motion.div>
-                  <div style={{ minWidth: 0 }}>
+
+                  {/* Tagline + name — takes available space */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
                       fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700,
                       letterSpacing: 2, color: stack.accentColor,
                       textTransform: 'uppercase', marginBottom: 5,
-                      /* Prevent tagline overflowing on small screens */
                       whiteSpace: 'normal', wordBreak: 'break-word',
                     }}>
                       {stack.tagline}
@@ -413,6 +392,22 @@ const StacksPage = ({ onAddCart }: {
                       {stack.name.toUpperCase()}
                     </div>
                   </div>
+
+                  {/* Badge — in-flow, never overlaps text */}
+                  {stack.badge && (
+                    <div style={{
+                      flexShrink: 0,
+                      alignSelf: 'flex-start',
+                      background: stack.accentColor,
+                      color: '#000',
+                      fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 900,
+                      letterSpacing: 2, padding: '5px 12px', borderRadius: 100,
+                      textTransform: 'uppercase',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {stack.badge}
+                    </div>
+                  )}
                 </div>
 
                 <p style={{
@@ -450,7 +445,6 @@ const StacksPage = ({ onAddCart }: {
                           minWidth: 0,
                         }}
                       >
-                        {/* Product thumbnail */}
                         <div style={{
                           width: 44, height: 44, borderRadius: 10, background: bg,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -499,7 +493,7 @@ const StacksPage = ({ onAddCart }: {
                   })}
                 </div>
 
-                {/* Benefits — 1 col on mobile, 2 col on wider cards */}
+                {/* Benefits */}
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 180px), 1fr))',
@@ -533,7 +527,6 @@ const StacksPage = ({ onAddCart }: {
                 borderTop: '1px solid rgba(255,255,255,.06)',
                 display: 'flex', alignItems: 'center',
                 justifyContent: 'space-between', gap: 16,
-                /* On very small screens, stack price above button */
                 flexWrap: 'wrap',
               }}>
                 <div style={{ minWidth: 0 }}>
@@ -566,7 +559,6 @@ const StacksPage = ({ onAddCart }: {
                     letterSpacing: 2, textTransform: 'uppercase',
                     border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
                     boxShadow: `0 6px 24px ${stack.accentColor}30`,
-                    /* Full width on very small screens */
                     flex: '1 1 auto', maxWidth: 240,
                     textAlign: 'center',
                   }}

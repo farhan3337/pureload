@@ -184,11 +184,11 @@ const ParallaxSection = ({ children, style }: { children: React.ReactNode; style
         pointerEvents: 'none', filter: 'blur(50px)',
       }} />
       {/* Vertical accent line */}
-      <motion.div aria-hidden style={{
+      {/* <motion.div aria-hidden style={{
         position: 'absolute', left: '50%', top: '15%', bottom: '15%', width: 1,
         background: 'linear-gradient(180deg, transparent 0%, hsl(var(--primary) / 0.35) 50%, transparent 100%)',
         scaleY: lineScale, transformOrigin: 'top',
-      }} />
+      }} /> */}
       <div style={{ position: 'relative', zIndex: 1 }}>{children}</div>
     </div>
   );

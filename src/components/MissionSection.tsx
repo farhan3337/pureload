@@ -66,7 +66,7 @@ const MissionSection = () => {
   const gridY = useTransform(scrollYProgress, [0, 1], [0, -160]);
 
   // Glowing accent stripe scales as you scroll through
-  const stripeScale = useTransform(scrollYProgress, [0.15, 0.6], [0, 1]);
+  // const stripeScale = useTransform(scrollYProgress, [0.15, 0.6], [0, 1]);
 
   // Ambient orange glow moves with scroll
   const glowY = useTransform(scrollYProgress, [0, 1], [-80, 80]);
@@ -123,7 +123,7 @@ const MissionSection = () => {
       />
 
       {/* Vertical accent stripe — scales with scroll */}
-      <motion.div
+      {/* <motion.div
         aria-hidden
         style={{
           position: 'absolute',
@@ -135,7 +135,7 @@ const MissionSection = () => {
           scaleY: stripeScale,
           transformOrigin: 'top',
         }}
-      />
+      /> */}
 
       <div style={{ position: 'relative', maxWidth: 1100, margin: '0 auto' }}>
 
