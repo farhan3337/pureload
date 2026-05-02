@@ -22,7 +22,7 @@ const HeroSection = ({ onGotoSection }: HeroSectionProps) => {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
   return (
-    <div id="ch-hero" ref={heroRef} style={{ height: '200vh' }}>
+    <div id="ch-hero" ref={heroRef} style={{ height: '150vh' }}>
       <section id="s-hero">
         <motion.div
           className="h-video-wrap"

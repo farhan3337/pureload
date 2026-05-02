@@ -5,13 +5,14 @@ const HowItWorks = () => {
     <div id="ch-how" className="ch-how-wrap">
       <style>{`
         #s-how {
-          min-height: 100vh;
-          padding-top: clamp(100px, 18vw, 180px);
-          padding-bottom: clamp(60px, 10vw, 120px);
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-        }
+  min-height: 100vh;
+  padding-top: clamp(100px, 18vw, 180px);
+  padding-bottom: clamp(60px, 10vw, 120px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;           /* ← ADD */
+}
 
         .how-cards {
           display: grid;
@@ -77,15 +78,16 @@ const HowItWorks = () => {
 
         <div className="how-noise" style={{ zIndex: 1 }} />
 
-        <div
-          style={{
-            width: '100%',
-            maxWidth: 1160,
-            padding: '0 clamp(20px, 5vw, 80px)',
-            position: 'relative',
-            zIndex: 2,
-          }}
-        >
+       <div
+  style={{
+    width: '100%',
+    maxWidth: 1160,
+    padding: '0 clamp(20px, 5vw, 80px)',
+    position: 'relative',
+    zIndex: 2,
+    margin: '0 auto',   // ← ADD THIS
+  }}
+>
           {/* ── Header ── */}
           <div className="how-top">
             <div

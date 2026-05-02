@@ -76,6 +76,14 @@ const ArrowIcon = () => (
   </svg>
 );
 
+// ── Stack variant IDs — these are the Shopify bundle products priced at $94.99 ──
+const STACK_VARIANT_IDS = {
+  performance: 'gid://shopify/ProductVariant/51809688486174',
+  recovery:    'gid://shopify/ProductVariant/51809688650014',
+  balance:     'gid://shopify/ProductVariant/51809688912158',
+  vitality:    'gid://shopify/ProductVariant/51809689141534',
+};
+
 const STACKS = [
   {
     id: 'performance',
@@ -325,249 +333,250 @@ const StacksPage = ({ onAddCart }: {
           gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 520px), 1fr))',
           gap: 20,
         }}>
-          {STACKS.map((stack, i) => (
-            <motion.div
-              key={stack.id}
-              initial={{ opacity: 0, y: 50, scale: 0.94 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.75, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              onMouseEnter={() => setHoveredId(stack.id)}
-              onMouseLeave={() => setHoveredId(null)}
-              style={{
-                borderRadius: 20,
-                background: 'linear-gradient(180deg, #0e0e0e 0%, #0a0a0a 100%)',
-                border: `1.5px solid ${hoveredId === stack.id ? stack.accentColor + '55' : 'rgba(255,255,255,.07)'}`,
-                overflow: 'hidden',
-                transition: 'border-color .3s, box-shadow .3s',
-                boxShadow: hoveredId === stack.id ? `0 24px 70px ${stack.accentColor}18` : 'none',
-                position: 'relative',
-                minWidth: 0,
-                width: '100%',
-              }}
-            >
-              {/* Accent bar top */}
-              <div style={{ height: 3, background: `linear-gradient(90deg, ${stack.accentColor}, ${stack.accentColor}00)` }} />
+          {STACKS.map((stack, i) => {
+            const firstProduct = PRODUCTS.find(p => p.slug === stack.products[0].slug);
+            const bundleVariantId = STACK_VARIANT_IDS[stack.id as keyof typeof STACK_VARIANT_IDS];
 
-              <div style={{ padding: 'clamp(20px, 4vw, 28px) clamp(16px, 4vw, 28px) 0' }}>
+            return (
+              <motion.div
+                key={stack.id}
+                initial={{ opacity: 0, y: 50, scale: 0.94 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{ duration: 0.75, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                onMouseEnter={() => setHoveredId(stack.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                style={{
+                  borderRadius: 20,
+                  background: 'linear-gradient(180deg, #0e0e0e 0%, #0a0a0a 100%)',
+                  border: `1.5px solid ${hoveredId === stack.id ? stack.accentColor + '55' : 'rgba(255,255,255,.07)'}`,
+                  overflow: 'hidden',
+                  transition: 'border-color .3s, box-shadow .3s',
+                  boxShadow: hoveredId === stack.id ? `0 24px 70px ${stack.accentColor}18` : 'none',
+                  position: 'relative',
+                  minWidth: 0,
+                  width: '100%',
+                }}
+              >
+                {/* Accent bar top */}
+                <div style={{ height: 3, background: `linear-gradient(90deg, ${stack.accentColor}, ${stack.accentColor}00)` }} />
 
-                {/* ── Header: icon + text + badge all in one row, no absolute positioning ── */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 14,
-                  marginBottom: 16,
-                  flexWrap: 'wrap',
-                }}>
-                  {/* Icon */}
-                  <motion.div
-                    whileHover={{ rotate: -5, scale: 1.07 }}
-                    transition={{ duration: 0.3 }}
-                    style={{
-                      width: 52, height: 52, borderRadius: 14,
-                      background: stack.accentColor + '14',
-                      border: `1px solid ${stack.accentColor}33`,
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      color: stack.accentColor, flexShrink: 0,
-                    }}
-                  >
-                    <div style={{ width: 28, height: 28 }}><stack.Icon /></div>
-                  </motion.div>
+                <div style={{ padding: 'clamp(20px, 4vw, 28px) clamp(16px, 4vw, 28px) 0' }}>
 
-                  {/* Tagline + name — takes available space */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700,
-                      letterSpacing: 2, color: stack.accentColor,
-                      textTransform: 'uppercase', marginBottom: 5,
-                      whiteSpace: 'normal', wordBreak: 'break-word',
-                    }}>
-                      {stack.tagline}
+                  {/* Header */}
+                  <div style={{
+                    display: 'flex', alignItems: 'flex-start',
+                    gap: 14, marginBottom: 16, flexWrap: 'wrap',
+                  }}>
+                    <motion.div
+                      whileHover={{ rotate: -5, scale: 1.07 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        width: 52, height: 52, borderRadius: 14,
+                        background: stack.accentColor + '14',
+                        border: `1px solid ${stack.accentColor}33`,
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        color: stack.accentColor, flexShrink: 0,
+                      }}
+                    >
+                      <div style={{ width: 28, height: 28 }}><stack.Icon /></div>
+                    </motion.div>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700,
+                        letterSpacing: 2, color: stack.accentColor,
+                        textTransform: 'uppercase', marginBottom: 5,
+                        whiteSpace: 'normal', wordBreak: 'break-word',
+                      }}>
+                        {stack.tagline}
+                      </div>
+                      <div style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: 'clamp(18px, 3vw, 30px)',
+                        letterSpacing: 1, color: 'hsl(var(--pl-white))', lineHeight: 1,
+                      }}>
+                        {stack.name.toUpperCase()}
+                      </div>
                     </div>
-                    <div style={{
-                      fontFamily: 'var(--font-heading)',
-                      fontSize: 'clamp(18px, 3vw, 30px)',
-                      letterSpacing: 1, color: 'hsl(var(--pl-white))', lineHeight: 1,
-                    }}>
-                      {stack.name.toUpperCase()}
-                    </div>
+
+                    {stack.badge && (
+                      <div style={{
+                        flexShrink: 0, alignSelf: 'flex-start',
+                        background: stack.accentColor, color: '#000',
+                        fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 900,
+                        letterSpacing: 2, padding: '5px 12px', borderRadius: 100,
+                        textTransform: 'uppercase', whiteSpace: 'nowrap',
+                      }}>
+                        {stack.badge}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Badge — in-flow, never overlaps text */}
-                  {stack.badge && (
-                    <div style={{
-                      flexShrink: 0,
-                      alignSelf: 'flex-start',
-                      background: stack.accentColor,
-                      color: '#000',
-                      fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 900,
-                      letterSpacing: 2, padding: '5px 12px', borderRadius: 100,
-                      textTransform: 'uppercase',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {stack.badge}
-                    </div>
-                  )}
-                </div>
+                  <p style={{
+                    fontFamily: 'var(--font-ui)', fontSize: 13,
+                    color: 'rgba(255,255,255,.42)', lineHeight: 1.7, marginBottom: 22,
+                  }}>
+                    {stack.purpose}
+                  </p>
 
-                <p style={{
-                  fontFamily: 'var(--font-ui)', fontSize: 13,
-                  color: 'rgba(255,255,255,.42)', lineHeight: 1.7, marginBottom: 22,
-                }}>
-                  {stack.purpose}
-                </p>
+                  <div style={{
+                    fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700,
+                    letterSpacing: 3, color: 'rgba(255,255,255,.3)',
+                    textTransform: 'uppercase', marginBottom: 10,
+                  }}>
+                    — Includes —
+                  </div>
 
-                {/* Includes label */}
-                <div style={{
-                  fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700,
-                  letterSpacing: 3, color: 'rgba(255,255,255,.3)',
-                  textTransform: 'uppercase', marginBottom: 10,
-                }}>
-                  — Includes —
-                </div>
-
-                {/* Product rows */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-                  {stack.products.map((prod, j) => {
-                    const img = getProductImg(prod.slug);
-                    const bg = getProductBg(prod.slug);
-                    return (
-                      <motion.div
-                        key={j}
-                        whileHover={{ x: 4, borderColor: `${stack.accentColor}40` }}
-                        transition={{ duration: 0.2 }}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 10,
-                          padding: '10px 12px', borderRadius: 12,
-                          background: 'rgba(255,255,255,.03)',
-                          border: '1px solid rgba(255,255,255,.06)',
-                          transition: 'border-color 0.2s ease',
-                          minWidth: 0,
-                        }}
-                      >
-                        <div style={{
-                          width: 44, height: 44, borderRadius: 10, background: bg,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          flexShrink: 0, overflow: 'hidden',
-                        }}>
-                          {img ? (
-                            <img src={img} alt={prod.name} style={{
-                              height: '80%', objectFit: 'contain',
-                              filter: `drop-shadow(0 2px 6px ${stack.accentColor}44)`,
-                            }} />
-                          ) : (
-                            <div style={{ color: stack.accentColor, width: 22, height: 22 }}><PillIcon /></div>
-                          )}
-                        </div>
-
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{
-                            fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 800,
-                            color: 'hsl(var(--pl-white))', letterSpacing: 0.5,
-                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                          }}>
-                            {prod.name}
-                          </div>
-                          <div style={{
-                            fontSize: 10, color: 'rgba(255,255,255,.35)', marginTop: 2,
-                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                          }}>
-                            {prod.role}
-                          </div>
-                        </div>
-
-                        <Link
-                          to={`/products/${prod.slug}`}
-                          onClick={e => e.stopPropagation()}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                    {stack.products.map((prod, j) => {
+                      const img = getProductImg(prod.slug);
+                      const bg = getProductBg(prod.slug);
+                      return (
+                        <motion.div
+                          key={j}
+                          whileHover={{ x: 4, borderColor: `${stack.accentColor}40` }}
+                          transition={{ duration: 0.2 }}
                           style={{
-                            fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700,
-                            letterSpacing: 1.5, color: stack.accentColor, textDecoration: 'none',
-                            textTransform: 'uppercase', opacity: 0.8, flexShrink: 0,
-                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                            display: 'flex', alignItems: 'center', gap: 10,
+                            padding: '10px 12px', borderRadius: 12,
+                            background: 'rgba(255,255,255,.03)',
+                            border: '1px solid rgba(255,255,255,.06)',
+                            transition: 'border-color 0.2s ease', minWidth: 0,
                           }}
                         >
-                          View <ArrowIcon />
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
-                </div>
+                          <div style={{
+                            width: 44, height: 44, borderRadius: 10, background: bg,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, overflow: 'hidden',
+                          }}>
+                            {img ? (
+                              <img src={img} alt={prod.name} style={{
+                                height: '80%', objectFit: 'contain',
+                                filter: `drop-shadow(0 2px 6px ${stack.accentColor}44)`,
+                              }} />
+                            ) : (
+                              <div style={{ color: stack.accentColor, width: 22, height: 22 }}><PillIcon /></div>
+                            )}
+                          </div>
 
-                {/* Benefits */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 180px), 1fr))',
-                  gap: '8px 12px',
-                  marginBottom: 22,
-                }}>
-                  {stack.benefits.map((b, j) => (
-                    <div key={j} style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,255,255,.5)',
-                      minWidth: 0,
-                    }}>
-                      <div style={{
-                        width: 18, height: 18, borderRadius: 5, flexShrink: 0,
-                        background: stack.accentColor + '14',
-                        border: `1px solid ${stack.accentColor}30`,
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 800,
+                              color: 'hsl(var(--pl-white))', letterSpacing: 0.5,
+                              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                            }}>
+                              {prod.name}
+                            </div>
+                            <div style={{
+                              fontSize: 10, color: 'rgba(255,255,255,.35)', marginTop: 2,
+                              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                            }}>
+                              {prod.role}
+                            </div>
+                          </div>
+
+                          <Link
+                            to={`/products/${prod.slug}`}
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                              fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700,
+                              letterSpacing: 1.5, color: stack.accentColor, textDecoration: 'none',
+                              textTransform: 'uppercase', opacity: 0.8, flexShrink: 0,
+                              display: 'inline-flex', alignItems: 'center', gap: 4,
+                            }}
+                          >
+                            View <ArrowIcon />
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 180px), 1fr))',
+                    gap: '8px 12px', marginBottom: 22,
+                  }}>
+                    {stack.benefits.map((b, j) => (
+                      <div key={j} style={{
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,255,255,.5)',
+                        minWidth: 0,
                       }}>
-                        <CheckIcon color={stack.accentColor} />
+                        <div style={{
+                          width: 18, height: 18, borderRadius: 5, flexShrink: 0,
+                          background: stack.accentColor + '14',
+                          border: `1px solid ${stack.accentColor}30`,
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <CheckIcon color={stack.accentColor} />
+                        </div>
+                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b}</span>
                       </div>
-                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* CTA footer */}
-              <div style={{
-                padding: 'clamp(16px, 3vw, 20px) clamp(16px, 4vw, 28px)',
-                background: 'rgba(255,255,255,.02)',
-                borderTop: '1px solid rgba(255,255,255,.06)',
-                display: 'flex', alignItems: 'center',
-                justifyContent: 'space-between', gap: 16,
-                flexWrap: 'wrap',
-              }}>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{
-                    fontFamily: 'var(--font-heading)',
-                    fontSize: 'clamp(26px, 5vw, 34px)',
-                    color: 'hsl(var(--pl-white))', lineHeight: 1,
-                  }}>
-                    ${stack.bundlePrice.toFixed(2)}
+                {/* CTA footer */}
+                <div style={{
+                  padding: 'clamp(16px, 3vw, 20px) clamp(16px, 4vw, 28px)',
+                  background: 'rgba(255,255,255,.02)',
+                  borderTop: '1px solid rgba(255,255,255,.06)',
+                  display: 'flex', alignItems: 'center',
+                  justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+                }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: 'clamp(26px, 5vw, 34px)',
+                      color: 'hsl(var(--pl-white))', lineHeight: 1,
+                    }}>
+                      ${stack.bundlePrice.toFixed(2)}
+                    </div>
+                    <div style={{
+                      fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 3,
+                      display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+                    }}>
+                      <span style={{ textDecoration: 'line-through' }}>${stack.originalPrice.toFixed(2)}</span>
+                      <span style={{ color: stack.accentColor, fontWeight: 700 }}>
+                        Save ${(stack.originalPrice - stack.bundlePrice).toFixed(2)}
+                      </span>
+                    </div>
                   </div>
-                  <div style={{
-                    fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 3,
-                    display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
-                  }}>
-                    <span style={{ textDecoration: 'line-through' }}>${stack.originalPrice.toFixed(2)}</span>
-                    <span style={{ color: stack.accentColor, fontWeight: 700 }}>
-                      Save ${(stack.originalPrice - stack.bundlePrice).toFixed(2)}
-                    </span>
-                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      // Use the dedicated Shopify bundle variant — price comes from Shopify ($94.99)
+                      onAddCart(
+                        1,
+                        stack.bundlePrice,
+                        stack.name,
+                        bundleVariantId,
+                        undefined,
+                        undefined,
+                        firstProduct?.img,
+                      );
+                    }}
+                    style={{
+                      padding: 'clamp(12px, 2vw, 14px) clamp(18px, 3vw, 28px)',
+                      borderRadius: 100,
+                      background: stack.accentColor, color: '#000',
+                      fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 900,
+                      letterSpacing: 2, textTransform: 'uppercase',
+                      border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+                      boxShadow: `0 6px 24px ${stack.accentColor}30`,
+                      flex: '1 1 auto', maxWidth: 240, textAlign: 'center',
+                    }}
+                  >
+                    Add Stack to Cart
+                  </motion.button>
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.04, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => onAddCart(1, stack.bundlePrice, stack.name)}
-                  style={{
-                    padding: 'clamp(12px, 2vw, 14px) clamp(18px, 3vw, 28px)',
-                    borderRadius: 100,
-                    background: stack.accentColor, color: '#000',
-                    fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 900,
-                    letterSpacing: 2, textTransform: 'uppercase',
-                    border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
-                    boxShadow: `0 6px 24px ${stack.accentColor}30`,
-                    flex: '1 1 auto', maxWidth: 240,
-                    textAlign: 'center',
-                  }}
-                >
-                  Add Stack to Cart
-                </motion.button>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </ParallaxSection>
 
