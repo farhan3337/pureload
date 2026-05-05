@@ -9,7 +9,7 @@ interface BundlesProps {
 
 const PACK_OPTIONS = [
   { key: 'single', label: '1 BOTTLE', qty: 1, tag: '', savePct: 0, desc: 'Try the PURELOAD experience' },
-  { key: 'twoPack', label: '2 PACK', qty: 2, tag: 'SAVE MORE', savePct: 13, desc: 'One month of gains' },
+  { key: 'twoPack', label: '2 PACK', qty: 2, tag: 'SAVE MORE', savePct: 13, desc: 'Two month of Supply' },
   { key: 'threePack', label: '3 PACK', qty: 3, tag: 'BEST VALUE', savePct: 22, desc: 'Maximum results — most popular' },
 ];
 

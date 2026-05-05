@@ -33,7 +33,7 @@ const pillars = [
   },
   {
     title: 'MADE IN USA',
-    desc: 'Proudly manufactured in the United States. Distributed by Arcdatum, Miami FL.',
+    desc: 'Proudly manufactured in the United States. Distributed by PURELOAD, Miami FL.',
     icon: (
       <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 9 H28 M4 16 H28 M4 23 H28" />

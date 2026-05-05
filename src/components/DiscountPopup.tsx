@@ -40,10 +40,10 @@ const DiscountPopup = () => {
               color: 'hsl(var(--pl-white))',
               marginBottom: 8,
             }}>
-              GET <em style={{ color: 'hsl(var(--primary))', fontStyle: 'normal' }}>20% OFF</em>
+              GET <em style={{ color: 'hsl(var(--primary))', fontStyle: 'normal' }}>10% OFF</em>
             </div>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,.45)', lineHeight: 1.7, marginBottom: 24 }}>
-              Join the PURELOAD squad and get 20% off your first order. No spam — just gains.
+              Join the PURELOAD squad and get 10% off your first order. No spam — just gains.
             </p>
             <input
               className="mb-in"
@@ -53,7 +53,7 @@ const DiscountPopup = () => {
               onChange={e => setEmail(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSubmit()}
             />
-            <button className="mb-btn" onClick={handleSubmit}>CLAIM MY 20% OFF →</button>
+            <button className="mb-btn" onClick={handleSubmit}>CLAIM MY 10% OFF →</button>
             <button className="mb-no" onClick={handleClose}>No thanks, I'll pay full price</button>
           </>
         ) : (

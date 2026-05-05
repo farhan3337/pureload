@@ -47,7 +47,7 @@ const Footer = () => {
         <div className="ft-disc">
           *These statements have not been evaluated by the Food and Drug Administration. 
           This product is not intended to diagnose, treat, cure, or prevent any disease. 
-          Distributed by Arcdatum · 12955 Biscayne Blvd Ste 200, PMB 457, Miami, FL 33181
+          Distributed by PURELOAD · 12955 Biscayne Blvd Ste 200, PMB 457, Miami, FL 33181
         </div>
         <div className="ft-copy">© {new Date().getFullYear()} PURELOAD. All rights reserved.</div>
       </div>

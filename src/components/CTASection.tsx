@@ -23,7 +23,7 @@ const CTASection = () => {
           <p className="cta-sub">
             {submitted
               ? <span style={{ color: 'hsl(var(--primary))' }}>You're in! Check your email for code <strong>BEAST20</strong></span>
-              : <>🔥 Limited Stock — Save 20% Today with code <strong>BEAST20</strong></>
+              : <>🔥 Limited Stock — Save 10% Today with code <strong>BEAST10</strong></>
             }
           </p>
 

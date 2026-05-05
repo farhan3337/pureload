@@ -6,12 +6,11 @@ interface TrustBannerProps {
 }
 
 const DEFAULT_ITEMS = [
-  '🇺🇸 MADE & SHIPPED IN USA',
-  '🔬 LAB TESTED & GMP CERTIFIED',
-  '📦 FREE SHIPPING ON ALL ORDERS',
-  '💰 BUY 2 GET 3RD FREE',
-  '🛡️ 30-DAY MONEY BACK GUARANTEE',
-  '⚡ FDA REGISTERED FACILITY',
+  'MADE & SHIPPED IN USA',
+  'LAB TESTED & GMP CERTIFIED',
+  'FREE SHIPPING ON ALL ORDERS',
+  '30-DAY MONEY BACK GUARANTEE',
+  'FDA REGISTERED FACILITY',
 ];
 
 const TrustBanner = ({ variant = 'default', items = DEFAULT_ITEMS }: TrustBannerProps) => {

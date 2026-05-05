@@ -1,12 +1,12 @@
 import pureloadLemonFront from '@/assets/pureload-lemon-front.png';
 import pureloadLemonBack from '@/assets/pureload-lemon-back.png';
-import pureloadLemonNutrition from '@/assets/pureload-lemon-nutrition.png';
+import pureloadLemonNutrition from '@/assets/lemmon-gummies-2.png';
 import pureloadMaleFront from '@/assets/pureload-male-front.png';
 import pureloadMaleBack from '@/assets/pureload-male-back.png';
-import pureloadMaleNutrition from '@/assets/pureload-male-nutrition.png';
+import pureloadMaleNutrition from '@/assets/male-enhancement-2.png';
 import pureloadWomenFront from '@/assets/pureload-women-front.png';
 import pureloadWomenBack from '@/assets/pureload-women-back.png';
-import pureloadWomenNutrition from '@/assets/pureload-women-nutrition.png';
+import pureloadWomenNutrition from '@/assets/women-support-2.png';
 
 // Ingredient images - Creatine Gummies
 import ingredientCreatineGummy from '@/assets/CreatineGummies/Creatine_1.jpg';
@@ -29,34 +29,34 @@ import ingredientChasteberry from '@/assets/WomensGummies/WomensGummies_3.jpg';
 import ingredientSodiumCitrate from '@/assets/WomensGummies/WomensGummies_4.jpg';
 
 // Ingredient images - Pre-Workout
-import ingredientCitrullineMalate from '@/assets/PreworkOut/PreworkOut_1.jpg';
-import ingredientBetaAlanine from '@/assets/PreworkOut/PreworkOut_2.jpg';
-import ingredientCaffeine from '@/assets/PreworkOut/PreworkOut_3.jpg';
-import ingredientLTyrosine from '@/assets/PreworkOut/PreworkOut_4.jpg';
-import ingredientBCAA from '@/assets/PreworkOut/PreworkOut_5.jpg';
+import ingredientCitrullineMalate from '@/assets/PreworkOut/PreworkOut_1.png';
+import ingredientBetaAlanine from '@/assets/PreworkOut/PreworkOut_2.png';
+import ingredientCaffeine from '@/assets/PreworkOut/PreworkOut_3.png';
+import ingredientLTyrosine from '@/assets/PreworkOut/PreworkOut_4.png';
+import ingredientBCAA from '@/assets/PreworkOut/PreworkOut_5.png';
 
 // Ingredient images - Multi Gummies
-import ingredientPomegranate from '@/assets/MutiGummies/MutiGummies_1.jpg';
-import ingredientVitaminB12Multi from '@/assets/MutiGummies/MutiGummies_2.jpg';
-import ingredientFolate from '@/assets/MutiGummies/MutiGummies_3.jpg';
-import ingredientVitaminCMulti from '@/assets/MutiGummies/MutiGummies_4.jpg';
-import ingredientZincMulti from '@/assets/MutiGummies/MutiGummies_5.jpg';
+import ingredientPomegranate from '@/assets/MutiGummies/MutiGummies_1.png';
+import ingredientVitaminB12Multi from '@/assets/MutiGummies/MutiGummies_2.png';
+import ingredientFolate from '@/assets/MutiGummies/MutiGummies_3.png';
+import ingredientVitaminCMulti from '@/assets/MutiGummies/MutiGummies_4.png';
+import ingredientZincMulti from '@/assets/MutiGummies/MutiGummies_5.png';
 
 // Ingredient images - Sleep Gummies
-import ingredientPassiflora from '@/assets/SleepGummies/SleepGummies_1.jpg';
-import ingredientMelatonin from '@/assets/SleepGummies/SleepGummies_2.jpg';
-import ingredientVitaminB6 from '@/assets/SleepGummies/SleepGummies_3.jpg';
+import ingredientPassiflora from '@/assets/SleepGummies/SleepGummies_1.png';
+import ingredientMelatonin from '@/assets/SleepGummies/SleepGummies_2.png';
+import ingredientVitaminB6 from '@/assets/SleepGummies/SleepGummies_3.png';
 
 // Ingredient images - Ashwagandha Gummies
 import ingredientAshwa1 from '@/assets/AshwagandhaGummies/Ashwagandha_1.png';
 import ingredientAshwa2 from '@/assets/AshwagandhaGummies/Ashwagandha_2.png';
 
 // Ingredient images - Debloat ACV Gummies
-import ingredientDebloat1 from '@/assets/DebloatGummies/Debloat_1.jpg';
-import ingredientDebloat2 from '@/assets/DebloatGummies/Debloat_2.jpg';
-import ingredientDebloat3 from '@/assets/DebloatGummies/Debloat_3.jpg';
-import ingredientDebloat4 from '@/assets/DebloatGummies/Debloat_4.jpg';
-import ingredientDebloat5 from '@/assets/DebloatGummies/Debloat_5.jpg';
+import ingredientDebloat1 from '@/assets/DebloatGummies/Debloat_1.png';
+import ingredientDebloat2 from '@/assets/DebloatGummies/Debloat_2.png';
+import ingredientDebloat3 from '@/assets/DebloatGummies/Debloat_3.png';
+import ingredientDebloat4 from '@/assets/DebloatGummies/Debloat_4.png';
+import ingredientDebloat5 from '@/assets/DebloatGummies/Debloat_5.png';
 
 // New product images (Pre-workout, Multivitamin, Sleep, Ashwagandha, Debloat)
 import pureloadPreworkoutFront from '@/assets/pureload-preworkout-front.png';
@@ -173,7 +173,7 @@ export const PRODUCTS: Product[] = [
       'No powder, no mixing required',
     ],
     stats: [
-      { label: 'CREATINE', value: '1g' },
+      { label: 'CREATINE', value: '1000g' },
       { label: 'COUNT', value: '60' },
       { label: 'CALS', value: '10' },
       { label: 'SUGAR', value: '0g' },

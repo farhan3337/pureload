@@ -380,5 +380,39 @@ export async function resumeSubscription(accessToken: string, contractId: string
     return false;
   }
 }
+// Add to shopify.ts
+
+export interface VariantInventory {
+  variantId: string;
+  quantity: number;
+}
+
+export async function fetchInventoryByVariantIds(
+  variantIds: string[]
+): Promise<Record<string, number>> {
+  const query = `
+    query getInventory($ids: [ID!]!) {
+      nodes(ids: $ids) {
+        ... on ProductVariant {
+          id
+          quantityAvailable
+        }
+      }
+    }
+  `;
+  try {
+    const data = await shopifyFetch(query, { ids: variantIds });
+    const result: Record<string, number> = {};
+    for (const node of data?.data?.nodes ?? []) {
+      if (node?.id && node.quantityAvailable != null) {
+        result[node.id] = node.quantityAvailable;
+      }
+    }
+    return result;
+  } catch (err) {
+    console.error('Failed to fetch inventory:', err);
+    return {};
+  }
+}
 
 export { SHOPIFY_DOMAIN };

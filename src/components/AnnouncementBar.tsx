@@ -4,7 +4,7 @@ const AnnouncementBar = () => {
     '🔬 LAB TESTED · GMP CERTIFIED',
     '🇺🇸 MADE IN USA',
     '🔥 BEST SELLERS SELLING FAST',
-    '💰 USE CODE BEAST20 FOR 20% OFF',
+    '💰 USE CODE BEAST10 FOR 10% OFF',
     '⏱ SUBSCRIBE & SAVE UP TO 15%',
   ];
 

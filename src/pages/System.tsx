@@ -777,19 +777,36 @@ const System = () => {
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            style={{ marginTop: 40, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}
-          >
-            <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} style={{ display: 'inline-block' }}>
-              <Link to="/collections" className="btn-p">Shop Best Sellers</Link>
-            </motion.div>
-            <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} style={{ display: 'inline-block' }}>
-              <Link to="/bundles" className="btn-o">Shop Bundles</Link>
-            </motion.div>
-          </motion.div>
+  initial={{ opacity: 0, y: 20 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+  transition={{ duration: 0.7, delay: 0.2 }}
+  style={{
+    marginTop: 40,
+    display: 'flex',
+    gap: 12,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: '0 24px',
+  }}
+>
+  <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
+    style={{ display: 'inline-block', minWidth: 0, flex: '1 1 200px', maxWidth: 320 }}>
+    <Link to="/collections" className="btn-p"
+      style={{ display: 'block', width: '100%', boxSizing: 'border-box', textAlign: 'center' }}>
+      Shop Best Sellers
+    </Link>
+  </motion.div>
+  <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
+    style={{ display: 'inline-block', minWidth: 0, flex: '1 1 200px', maxWidth: 320 }}>
+    <Link to="/bundles" className="btn-o"
+      style={{ display: 'block', width: '100%', boxSizing: 'border-box', textAlign: 'center' }}>
+      Shop Bundles
+    </Link>
+  </motion.div>
+</motion.div>
 
           {/* Shipping line — no emoji */}
           <motion.div

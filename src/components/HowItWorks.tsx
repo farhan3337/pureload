@@ -289,7 +289,7 @@ const HowItWorks = () => {
 
               <div className="hc-t">Transform</div>
               <div className="hc-d">
-                Watch your performance, energy, and overall wellbeing transform. Real ingredients, real
+                Watch your performance, energy, and overall well being transform. Real ingredients, real
                 results.
               </div>
 
