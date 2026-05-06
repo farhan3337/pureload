@@ -2,7 +2,6 @@ const AnnouncementBar = () => {
   const items = [
     '📦 FREE SHIPPING ON ALL ORDERS',
     '🔬 LAB TESTED · GMP CERTIFIED',
-    '🇺🇸 MADE IN USA',
     '🔥 BEST SELLERS SELLING FAST',
     '💰 USE CODE BEAST10 FOR 10% OFF',
     '⏱ SUBSCRIBE & SAVE UP TO 15%',

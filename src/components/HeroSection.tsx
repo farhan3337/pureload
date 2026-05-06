@@ -59,7 +59,7 @@ const HeroSection = ({ onGotoSection }: HeroSectionProps) => {
             fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: 2,
             color: 'rgba(255,255,255,.65)', textTransform: 'uppercase',
           }}>
-            <span>🇺🇸 Made in USA</span>
+            {/* <span>🇺🇸 Made in USA</span> */}
             <span>🔬 Lab Tested</span>
             <span>✅ GMP Certified</span>
             <span>📦 Free Shipping</span>

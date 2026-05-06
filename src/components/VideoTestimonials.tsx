@@ -45,15 +45,18 @@ const VideoTestimonials = () => {
           <div className="sec-ey" style={{ opacity: 1, transform: 'none', textAlign: 'center', marginBottom: 16 }}>
             Real Results
           </div>
-          <h2 style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'clamp(40px, 6vw, 64px)',
-            lineHeight: '.9',
-            letterSpacing: 1,
-            color: 'hsl(var(--pl-white))',
-            textAlign: 'center',
-            marginBottom: 14,
-          }}>
+         <h2
+  style={{
+    fontFamily: 'var(--font-heading)',
+    fontSize: 'clamp(28px, 8vw, 56px)', // smaller minimum, better scaling
+    lineHeight: '1.05', // more breathing room
+    letterSpacing: '0.5px', // reduce spacing
+    color: 'hsl(var(--pl-white))',
+    textAlign: 'center',
+    marginBottom: 14,
+    wordBreak: 'break-word', // prevents overflow
+  }}
+>
             CLIENT <em style={{ color: 'hsl(var(--primary))', fontStyle: 'normal' }}>TRANSFORMATIONS</em>
           </h2>
           <p style={{

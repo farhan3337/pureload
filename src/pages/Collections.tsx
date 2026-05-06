@@ -180,20 +180,40 @@ const Collections = () => {
                       <span style={{ fontFamily: 'var(--font-heading)', fontSize: 32, color: isOutOfStock ? 'rgba(255,255,255,.3)' : 'hsl(var(--primary))' }}>
                         ${f.price.toFixed(2)}
                       </span>
+
+                      {/* ── Urgency line beneath price ── */}
                       <div style={{ marginTop: 4 }}>
                         {urgency ? (
+                          /* Real stock-driven label (critical / low / out-of-stock) */
                           <span style={{ fontFamily: 'var(--font-ui)', fontSize: 9, letterSpacing: 1.5, color: urgency.color, textTransform: 'uppercase', fontWeight: 800 }}>
                             {urgency.text}
                           </span>
-                        ) : (
-                          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 9, letterSpacing: 1.5, color: 'rgba(255,255,255,.4)', textTransform: 'uppercase', fontWeight: 700 }}>
-                            {f.bundlePricing ? 'Save more with bundles' : 'In Stock — Ships Today'}
-                          </span>
+                        ) : isOutOfStock ? null : (
+                          /* Default: always show an urgency nudge when in stock */
+                          <motion.span
+                            animate={{ opacity: [1, 0.6, 1] }}
+                            transition={{ duration: 2.4, repeat: Infinity }}
+                            style={{
+                              fontFamily: 'var(--font-ui)', fontSize: 9, letterSpacing: 1.5,
+                              color: 'hsl(var(--primary))', textTransform: 'uppercase', fontWeight: 800,
+                            }}
+                          >
+                            {f.bundlePricing ? '⚡ Bundle & Save More' : '⚡ Limited Stock · Ships Today'}
+                          </motion.span>
                         )}
                       </div>
                     </div>
-                    <motion.span whileHover={{ x: 4 }} style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: isOutOfStock ? 'rgba(255,255,255,.25)' : 'hsl(var(--primary))', letterSpacing: 1.5, fontWeight: 700, display: 'inline-block' }}>
-                      {isOutOfStock ? 'Sold Out' : isCritical ? 'Buy Now →' : 'Shop Now →'}
+
+                    {/* ── CTA arrow — always "Buy Now" when available ── */}
+                    <motion.span
+                      whileHover={{ x: 4 }}
+                      style={{
+                        fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 1.5, fontWeight: 700,
+                        display: 'inline-block',
+                        color: isOutOfStock ? 'rgba(255,255,255,.25)' : 'hsl(var(--primary))',
+                      }}
+                    >
+                      {isOutOfStock ? 'Sold Out' : isCritical ? '🔥 Buy Now →' : 'Buy Now →'}
                     </motion.span>
                   </div>
 
@@ -219,6 +239,36 @@ const Collections = () => {
                           }}
                         />
                       </div>
+                    </div>
+                  )}
+
+                  {/* ── Urgency footer strip — always visible ── */}
+                  {!isOutOfStock && (
+                    <div style={{
+                      marginTop: 14,
+                      padding: '8px 12px',
+                      borderRadius: 8,
+                      background: isCritical
+                        ? 'rgba(239,68,68,.07)'
+                        : 'rgba(255,90,0,.06)',
+                      border: `1px solid ${isCritical ? 'rgba(239,68,68,.2)' : 'rgba(255,90,0,.12)'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                      <span style={{
+                        fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 800, letterSpacing: 1.5,
+                        color: isCritical ? '#ef4444' : 'hsl(var(--primary))',
+                        textTransform: 'uppercase',
+                      }}>
+                        {isCritical ? '⚠ Almost Gone — Order Now' : isLow ? '⚡ Selling Fast — Limited Stock' : '✓ In Stock — Buy Now & Save'}
+                      </span>
+                      <span style={{
+                        fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700, letterSpacing: 1,
+                        color: 'rgba(255,255,255,.25)', textTransform: 'uppercase',
+                      }}>
+                        Free Shipping
+                      </span>
                     </div>
                   )}
                 </div>

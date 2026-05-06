@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import heroBg from '../assets/new-image-1.jpeg';
 
 // Custom SVG icons
@@ -28,13 +28,32 @@ const proofs = [
 const BuiltDifferent = () => {
   const sectionRef = useRef<HTMLElement>(null);
 
+  // Track viewport width reactively so SSR and resize both work correctly
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    setIsMobile(mq.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start end', 'end start'],
   });
 
-  // Parallax on the background image
-  const bgY = useTransform(scrollYProgress, [0, 1], ['-8%', '8%']);
+  // Parallax on the background image.
+  // On mobile: no Y translation (keeps image at natural size/position).
+  // On desktop: subtle ±8% parallax.
+  const bgY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    isMobile ? ['0%', '0%'] : ['-8%', '8%']
+  );
 
   // Header
   const headerY = useTransform(scrollYProgress, [0, 1], [60, -40]);
@@ -66,11 +85,16 @@ const BuiltDifferent = () => {
         aria-hidden
         style={{
           position: 'absolute',
-          inset: '-10% 0',
+          // On mobile: flush with the section edges — no bleed needed because
+          // there is no parallax movement, so the image never needs extra room.
+          // On desktop: extend -10% top/bottom to give the parallax room to slide.
+          inset: isMobile ? '0' : '-10% 0',
           y: bgY,
           backgroundImage: `url(${heroBg})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center 40%',
+          // Mobile: center the image so the subject stays in frame.
+          // Desktop: keep the original vertical offset.
+          backgroundPosition: isMobile ? 'center center' : 'center 40%',
           backgroundRepeat: 'no-repeat',
           zIndex: 0,
         }}
@@ -82,7 +106,7 @@ const BuiltDifferent = () => {
         style={{
           position: 'absolute',
           inset: 0,
-         background: `
+          background: `
   linear-gradient(
     to bottom,
     rgba(0,0,0,0.95) 0%,

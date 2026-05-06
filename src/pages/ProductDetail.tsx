@@ -53,6 +53,14 @@ const CloseIcon = () => (
   </svg>
 );
 
+const ZoomIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="6.5" cy="6.5" r="4.5" />
+    <path d="M10 10 L14 14" />
+    <path d="M6.5 4.5 v4 M4.5 6.5 h4" />
+  </svg>
+);
+
 const StarIcon = ({ filled }: { filled: boolean }) => (
   <svg width="13" height="13" viewBox="0 0 16 16" fill={filled ? 'hsl(var(--primary))' : 'rgba(255,90,0,0.25)'}>
     <path d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10.4l-3.7 1.8.7-4.1-3-2.9 4.2-.6z" />
@@ -70,6 +78,8 @@ const TrustBadge = ({ icon, label }: { icon: React.ReactNode; label: string }) =
   </div>
 );
 
+const IMAGE_LABELS = ['Front', 'Nutrition', 'Back'];
+
 const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
   const { slug } = useParams();
   const product = PRODUCTS.find(f => f.slug === slug);
@@ -80,19 +90,23 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
   const [activeImg, setActiveImg] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
+  // ── NEW: main image lightbox state ──
+  const [mainLightboxIndex, setMainLightboxIndex] = useState<number | null>(null);
+
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
+
+  // Track whether the pointer actually dragged (to distinguish tap vs swipe)
+  const didDrag = useRef(false);
 
   const { scrollYProgress } = useScroll({
     target: pageRef,
     offset: ['start start', 'end end'],
   });
 
-  // Image column parallax
   const imgY = useTransform(scrollYProgress, [0, 0.5], [0, -60]);
-  // Info column drifts at different rate
   const infoY = useTransform(scrollYProgress, [0, 0.5], [0, -30]);
 
   useEffect(() => {
@@ -102,6 +116,7 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
     setSubscribe(true);
     setSubInterval(SUBSCRIPTION_INTERVALS[0]);
     setLightboxIndex(null);
+    setMainLightboxIndex(null);
   }, [slug]);
 
   if (!product) {
@@ -115,6 +130,7 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
     );
   }
 
+  // ── Ingredient lightbox keyboard nav ──
   useEffect(() => {
     if (lightboxIndex === null || !product?.ingredientImages) return;
     const total = product.ingredientImages.length;
@@ -126,6 +142,26 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [lightboxIndex, product]);
+
+  // ── Main image lightbox keyboard nav ──
+  useEffect(() => {
+    if (mainLightboxIndex === null) return;
+    const total = images.length;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMainLightboxIndex(null);
+      else if (e.key === 'ArrowRight') setMainLightboxIndex(prev => prev !== null ? (prev + 1) % total : 0);
+      else if (e.key === 'ArrowLeft') setMainLightboxIndex(prev => prev !== null ? (prev - 1 + total) % total : 0);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [mainLightboxIndex]);
+
+  // Lock body scroll when any lightbox is open
+  useEffect(() => {
+    const open = lightboxIndex !== null || mainLightboxIndex !== null;
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [lightboxIndex, mainLightboxIndex]);
 
   const images = [product.images.front, product.images.nutrition, product.images.back];
 
@@ -144,8 +180,6 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
     ? selectedPack
     : packs.find(p => p.label === selectedPack.label) || packs[2];
 
-  // Resolve the matching Shopify variant for the currently-selected pack.
-  // Falls back to the product's default variant for safety.
   const currentVariantId =
     (currentPack as { variantId?: string }).variantId ||
     packs.find(p => p.label === currentPack.label)?.variantId ||
@@ -167,6 +201,7 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
+    didDrag.current = false;
   }, []);
 
   const onTouchEnd = useCallback((e: React.TouchEvent) => {
@@ -175,23 +210,53 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
     const dy = e.changedTouches[0].clientY - touchStartY.current;
     touchStartX.current = null;
     touchStartY.current = null;
+
+    // If it was more vertical than horizontal, it's a scroll — ignore
     if (Math.abs(dy) > Math.abs(dx) + VERTICAL_LOCK) return;
-    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-    if (dx < 0) setActiveImg(prev => Math.min(prev + 1, images.length - 1));
-    else setActiveImg(prev => Math.max(prev - 1, 0));
-  }, [images.length]);
+
+    if (Math.abs(dx) >= SWIPE_THRESHOLD) {
+      // It's a swipe
+      didDrag.current = true;
+      if (dx < 0) setActiveImg(prev => Math.min(prev + 1, images.length - 1));
+      else setActiveImg(prev => Math.max(prev - 1, 0));
+    } else {
+      // Short tap — open lightbox for the currently visible slide
+      didDrag.current = false;
+      setMainLightboxIndex(activeImg);
+    }
+  }, [images.length, activeImg]);
 
   const mouseStartX = useRef<number | null>(null);
-  const onMouseDown = useCallback((e: React.MouseEvent) => { mouseStartX.current = e.clientX; }, []);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    mouseStartX.current = e.clientX;
+    didDrag.current = false;
+  }, []);
+
   const onMouseUp = useCallback((e: React.MouseEvent) => {
     if (mouseStartX.current === null) return;
     const dx = e.clientX - mouseStartX.current;
     mouseStartX.current = null;
-    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-    if (dx < 0) setActiveImg(prev => Math.min(prev + 1, images.length - 1));
-    else setActiveImg(prev => Math.max(prev - 1, 0));
+
+    if (Math.abs(dx) >= SWIPE_THRESHOLD) {
+      didDrag.current = true;
+      if (dx < 0) setActiveImg(prev => Math.min(prev + 1, images.length - 1));
+      else setActiveImg(prev => Math.max(prev - 1, 0));
+    } else {
+      didDrag.current = false;
+    }
   }, [images.length]);
-  const onMouseLeave = useCallback(() => { mouseStartX.current = null; }, []);
+
+  const onMouseLeave = useCallback(() => {
+    mouseStartX.current = null;
+  }, []);
+
+  // Individual slide click — only fires if it wasn't a drag
+  const handleSlideClick = useCallback((index: number) => {
+    if (!didDrag.current) {
+      setMainLightboxIndex(index);
+    }
+  }, []);
 
   const PEEK = 12;
   const GAP = 12;
@@ -210,8 +275,7 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
       <div
         aria-hidden
         style={{
-          position: 'fixed',
-          inset: 0,
+          position: 'fixed', inset: 0,
           backgroundImage: `
             linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
@@ -219,8 +283,7 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
           backgroundSize: '80px 80px',
           maskImage: 'radial-gradient(ellipse at center, black 20%, transparent 70%)',
           WebkitMaskImage: 'radial-gradient(ellipse at center, black 20%, transparent 70%)',
-          pointerEvents: 'none',
-          zIndex: 0,
+          pointerEvents: 'none', zIndex: 0,
         }}
       />
 
@@ -228,16 +291,10 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
       <div
         aria-hidden
         style={{
-          position: 'fixed',
-          top: '25%',
-          left: '40%',
-          width: '50vw',
-          height: '50vw',
-          maxWidth: 700,
+          position: 'fixed', top: '25%', left: '40%',
+          width: '50vw', height: '50vw', maxWidth: 700,
           background: 'radial-gradient(circle, hsl(var(--primary) / 0.07) 0%, transparent 60%)',
-          pointerEvents: 'none',
-          filter: 'blur(60px)',
-          zIndex: 0,
+          pointerEvents: 'none', filter: 'blur(60px)', zIndex: 0,
         }}
       />
 
@@ -276,7 +333,7 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                 height: 'clamp(320px, 50vw, 520px)',
                 overflow: 'hidden',
                 borderRadius: 20,
-                cursor: 'grab',
+                cursor: 'zoom-in',
                 userSelect: 'none',
                 touchAction: 'pan-y',
                 border: '1px solid rgba(255,255,255,.06)',
@@ -295,6 +352,7 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                 {images.map((img, i) => (
                   <div
                     key={i}
+                    onClick={() => handleSlideClick(i)}
                     style={{
                       flexShrink: 0,
                       width: `calc(${100 - PEEK}% - ${GAP * (images.length - 1) / images.length}px)`,
@@ -314,17 +372,34 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                       background: 'linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.4) 100%)',
                       pointerEvents: 'none',
                     }} />
+
                     <img
                       src={img}
-                      alt={product.name}
+                      alt={`${product.name} — ${IMAGE_LABELS[i]}`}
                       draggable={false}
                       style={{
                         maxHeight: '88%', maxWidth: '88%',
                         width: 'auto', height: 'auto', objectFit: 'contain',
                         filter: 'drop-shadow(0 20px 60px rgba(255,90,0,.25))',
                         pointerEvents: 'none', position: 'relative', zIndex: 1,
+                        transition: 'transform 0.3s ease',
                       }}
                     />
+
+                    {/* Zoom hint — shown on the active slide only */}
+                    {i === activeImg && (
+                      <div style={{
+                        position: 'absolute', bottom: 12, right: 12, zIndex: 20,
+                        width: 32, height: 32, borderRadius: '50%',
+                        background: 'rgba(0,0,0,0.55)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'rgba(255,255,255,0.7)',
+                        pointerEvents: 'none',
+                      }}>
+                        <ZoomIcon />
+                      </div>
+                    )}
                   </div>
                 ))}
               </motion.div>
@@ -369,13 +444,39 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
               </div>
             </div>
 
+            {/* Thumbnail strip — click to jump to slide */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+              {images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveImg(i)}
+                  style={{
+                    flex: 1, height: 64, borderRadius: 10, overflow: 'hidden',
+                    border: activeImg === i ? '2px solid hsl(var(--primary))' : '1.5px solid rgba(255,255,255,.08)',
+                    background: product.bg,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', transition: 'border-color .2s',
+                    padding: 0,
+                  }}
+                  aria-label={`View ${IMAGE_LABELS[i]} image`}
+                >
+                  <img
+                    src={img}
+                    alt={IMAGE_LABELS[i]}
+                    draggable={false}
+                    style={{ maxHeight: '80%', maxWidth: '80%', objectFit: 'contain', pointerEvents: 'none' }}
+                  />
+                </button>
+              ))}
+            </div>
+
             {/* Ingredient images */}
             {product.ingredientImages && product.ingredientImages.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
-                className="mt-6"
+                className="mt-2"
               >
                 <div style={{
                   fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700,
@@ -409,18 +510,15 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                       transition={{ delay: 0.5 + i * 0.08, duration: 0.4 }}
                     >
                       <div style={{ background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-  <img
-    src={ing.image} alt={ing.name} loading="lazy"
-    style={{ 
-      width: '100%',
-      height: 'auto',
-      display: 'block',
-      objectFit: 'contain',
-      transition: 'transform .4s',
-    }}
-    className="group-hover:scale-105"
-  />
-</div>
+                        <img
+                          src={ing.image} alt={ing.name} loading="lazy"
+                          style={{
+                            width: '100%', height: 'auto', display: 'block',
+                            objectFit: 'contain', transition: 'transform .4s',
+                          }}
+                          className="group-hover:scale-105"
+                        />
+                      </div>
                       <div style={{
                         padding: '8px 6px', fontFamily: 'var(--font-ui)', fontSize: 8,
                         fontWeight: 700, letterSpacing: 1.5, color: 'hsl(var(--primary))',
@@ -517,6 +615,7 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                 {packs.map(p => {
                   const isSelected = currentPack.label === p.label;
                   const isBest = p.label === '3-Pack';
+                  const isSingle = p.label === '1-Bottle';
                   return (
                     <motion.button
                       key={p.label}
@@ -538,6 +637,20 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                           padding: '3px 8px', borderRadius: 100, whiteSpace: 'nowrap', textTransform: 'uppercase',
                         }}>{p.tag}</div>
                       )}
+                      {isSingle && !p.tag && (
+                        <motion.div
+                          animate={{ opacity: [1, 0.55, 1] }}
+                          transition={{ duration: 2.2, repeat: Infinity }}
+                          style={{
+                            position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)',
+                            background: 'rgba(239,68,68,.85)', color: '#fff',
+                            fontFamily: 'var(--font-ui)', fontSize: 8, fontWeight: 900, letterSpacing: 1.2,
+                            padding: '3px 8px', borderRadius: 100, whiteSpace: 'nowrap', textTransform: 'uppercase',
+                          }}
+                        >
+                          Limited Stock
+                        </motion.div>
+                      )}
                       <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 800, letterSpacing: 2, color: 'hsl(var(--pl-white))' }}>
                         {p.label.toUpperCase()}
                       </div>
@@ -552,6 +665,15 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                           </span>
                         </div>
                       )}
+                      {isSingle && (
+                        <div style={{
+                          marginTop: 6,
+                          fontFamily: 'var(--font-ui)', fontSize: 8, fontWeight: 800,
+                          letterSpacing: 1, color: 'rgba(239,68,68,.75)', textTransform: 'uppercase',
+                        }}>
+                          Selling Fast
+                        </div>
+                      )}
                     </motion.button>
                   );
                 })}
@@ -560,7 +682,6 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
 
             {/* Purchase type toggle */}
             <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible">
-              {/* Subscribe */}
               <div
                 className="flex items-center gap-3 p-4 rounded-xl mb-2 cursor-pointer transition-all"
                 onClick={() => setSubscribe(true)}
@@ -593,7 +714,6 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                 )}
               </div>
 
-              {/* One-time */}
               <div
                 className="flex items-center gap-3 p-3 rounded-xl mb-3 cursor-pointer transition-all"
                 onClick={() => setSubscribe(false)}
@@ -642,16 +762,49 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
               )}
             </motion.div>
 
-            {/* Price */}
-            <motion.div custom={7} variants={fadeUp} initial="hidden" animate="visible" className="flex items-baseline gap-3 mb-4">
-              <span style={{ fontFamily: 'var(--font-heading)', fontSize: 50, letterSpacing: 1, color: 'hsl(var(--pl-white))' }}>
-                ${finalPrice.toFixed(2)}
-              </span>
-              {subscribe && (
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 18, color: 'rgba(255,255,255,.25)', textDecoration: 'line-through' }}>
-                  ${currentPack.price.toFixed(2)}
+            {/* Price block */}
+            <motion.div custom={7} variants={fadeUp} initial="hidden" animate="visible" className="mb-4">
+              <motion.div
+                animate={{ opacity: [1, 0.7, 1] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  marginBottom: 10, padding: '7px 12px', borderRadius: 8,
+                  background: 'rgba(239,68,68,.07)', border: '1px solid rgba(239,68,68,.18)',
+                }}
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.4, 1] }}
+                  transition={{ duration: 1.6, repeat: Infinity }}
+                  style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', flexShrink: 0 }}
+                />
+                <span style={{
+                  fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 800,
+                  letterSpacing: 1.8, color: '#ef4444', textTransform: 'uppercase',
+                }}>
+                  Limited Stock — Selling Fast · Buy Now Before It's Gone
                 </span>
-              )}
+              </motion.div>
+
+              <div className="flex items-baseline gap-3">
+                <span style={{ fontFamily: 'var(--font-heading)', fontSize: 50, letterSpacing: 1, color: 'hsl(var(--pl-white))' }}>
+                  ${finalPrice.toFixed(2)}
+                </span>
+                {subscribe && (
+                  <span style={{ fontFamily: 'var(--font-ui)', fontSize: 18, color: 'rgba(255,255,255,.25)', textDecoration: 'line-through' }}>
+                    ${currentPack.price.toFixed(2)}
+                  </span>
+                )}
+              </div>
+
+              <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 800, letterSpacing: 1.5, color: 'hsl(var(--primary))', textTransform: 'uppercase' }}>
+                  {subscribe ? `You save ${Math.round(subInterval.discount * 100)}% today` : 'One-time purchase'}
+                </span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700, letterSpacing: 1.5, color: 'rgba(255,255,255,.3)', textTransform: 'uppercase' }}>
+                  · Free Shipping · Ships Today
+                </span>
+              </div>
             </motion.div>
 
             {/* Qty + ATC */}
@@ -663,21 +816,34 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                   <button className="qb" onClick={() => setQty(qty + 1)}>+</button>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'hsl(var(--primary))', animation: 'pulse 2s infinite' }} />
-                  <span className="hot-tag">Selling Fast</span>
+                  <motion.div
+                    animate={{ scale: [1, 1.4, 1] }}
+                    transition={{ duration: 1.6, repeat: Infinity }}
+                    style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444' }}
+                  />
+                  <span className="hot-tag" style={{ color: '#ef4444' }}>Limited Stock · Selling Fast</span>
                 </div>
               </div>
+
               <motion.button
                 className="atc"
                 onClick={handleAdd}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
-                ADD TO CART — ${(finalPrice * qty).toFixed(2)}
+                BUY NOW — ${(finalPrice * qty).toFixed(2)}
               </motion.button>
+
+              <div style={{
+                marginTop: 10, textAlign: 'center',
+                fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700,
+                letterSpacing: 1.5, color: 'rgba(255,255,255,.28)', textTransform: 'uppercase',
+              }}>
+                ⚡ Order in the next 2 hours for same-day dispatch · Limited Stock Available
+              </div>
             </motion.div>
 
-            {/* Trust badges — no emojis */}
+            {/* Trust badges */}
             <motion.div
               custom={9} variants={fadeUp} initial="hidden" animate="visible"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 20, flexWrap: 'wrap' }}
@@ -753,16 +919,22 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
                   >
                     <Link to={`/products/${f.slug}`} style={{ display: 'block' }}>
                       <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: f.bg }}>
-                        <img src={f.img} alt={f.name} style={{ height: '65%', objectFit: 'contain', position: 'relative', zIndex: 1, filter: 'drop-shadow(0 10px 30px rgba(255,90,0,.2))', transition: 'transform 0.4s ease' }}
+                        <img src={f.img} alt={f.name}
+                          style={{ height: '65%', objectFit: 'contain', position: 'relative', zIndex: 1, filter: 'drop-shadow(0 10px 30px rgba(255,90,0,.2))', transition: 'transform 0.4s ease' }}
                           className="group-hover:scale-110"
                         />
                       </div>
                       <div style={{ padding: 20 }}>
                         <div style={{ fontFamily: 'var(--font-heading)', fontSize: 28, letterSpacing: 1, color: 'hsl(var(--pl-white))' }}>{f.name}</div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 14 }}>
-                          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 32, color: 'hsl(var(--primary))' }}>${f.price.toFixed(2)}</span>
+                          <div>
+                            <span style={{ fontFamily: 'var(--font-heading)', fontSize: 32, color: 'hsl(var(--primary))' }}>${f.price.toFixed(2)}</span>
+                            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 8, fontWeight: 800, letterSpacing: 1.5, color: 'rgba(239,68,68,.7)', textTransform: 'uppercase', marginTop: 3 }}>
+                              Selling Fast
+                            </div>
+                          </div>
                           <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'hsl(var(--primary))', letterSpacing: 1.5, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5 }}>
-                            SHOP NOW
+                            BUY NOW
                             <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M2 6h8M7 3l3 3-3 3" />
                             </svg>
@@ -777,7 +949,79 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
           </motion.div>
         )}
 
-        {/* Lightbox */}
+        {/* ── Main image lightbox ── */}
+        {mainLightboxIndex !== null && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setMainLightboxIndex(null)}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9999,
+              background: 'rgba(0,0,0,.96)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'zoom-out', padding: 24,
+            }}
+          >
+            <motion.div
+              key={mainLightboxIndex}
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+                maxWidth: '90vw', cursor: 'default',
+                background: product.bg,
+                borderRadius: 20, padding: 32,
+                border: '1px solid rgba(255,255,255,.08)',
+              }}
+            >
+              <img
+                src={images[mainLightboxIndex]}
+                alt={`${product.name} — ${IMAGE_LABELS[mainLightboxIndex]}`}
+                style={{ maxWidth: '80vw', maxHeight: '65vh', objectFit: 'contain', borderRadius: 8, filter: 'drop-shadow(0 20px 60px rgba(255,90,0,.2))' }}
+              />
+              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 800, letterSpacing: 3, color: 'rgba(255,255,255,.5)', textTransform: 'uppercase' }}>
+                {IMAGE_LABELS[mainLightboxIndex]} View · {String(mainLightboxIndex + 1).padStart(2, '0')} / {String(images.length).padStart(2, '0')}
+              </div>
+            </motion.div>
+
+            {/* Prev / Next */}
+            <motion.button
+              onClick={(e) => { e.stopPropagation(); setMainLightboxIndex((mainLightboxIndex - 1 + images.length) % images.length); }}
+              whileHover={{ scale: 1.1, background: 'rgba(255,90,0,0.25)' }}
+              style={{ position: 'absolute', left: 24, top: '50%', transform: 'translateY(-50%)', width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <ChevronLeft />
+            </motion.button>
+            <motion.button
+              onClick={(e) => { e.stopPropagation(); setMainLightboxIndex((mainLightboxIndex + 1) % images.length); }}
+              whileHover={{ scale: 1.1, background: 'rgba(255,90,0,0.25)' }}
+              style={{ position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)', width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <ChevronRight />
+            </motion.button>
+
+            {/* Dot strip */}
+            <div style={{ position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
+              {images.map((_, i) => (
+                <button key={i} onClick={(e) => { e.stopPropagation(); setMainLightboxIndex(i); }}
+                  style={{ width: mainLightboxIndex === i ? 28 : 8, height: 8, borderRadius: 4, background: mainLightboxIndex === i ? 'hsl(var(--primary))' : 'rgba(255,255,255,.3)', border: 'none', cursor: 'pointer', transition: 'all .25s' }}
+                />
+              ))}
+            </div>
+
+            {/* Close */}
+            <motion.button
+              onClick={() => setMainLightboxIndex(null)}
+              whileHover={{ scale: 1.1 }}
+              style={{ position: 'absolute', top: 24, right: 24, width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <CloseIcon />
+            </motion.button>
+          </motion.div>
+        )}
+
+        {/* ── Ingredient image lightbox (unchanged) ── */}
         {lightboxIndex !== null && product.ingredientImages && product.ingredientImages[lightboxIndex] && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -854,3 +1098,4 @@ const ProductDetail = ({ onAddCart }: ProductDetailProps) => {
 };
 
 export default ProductDetail;
+
